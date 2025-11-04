@@ -11,8 +11,8 @@ use uncover::prelude::*;
 pub struct HelloWorld;
 
 impl Metadata for HelloWorld {
-    fn metadata(&self) -> EndpointMetadata {
-        EndpointMetadata::new("/", "get").summary("Say hello")
+    fn metadata(&self) -> Endpoint {
+        Endpoint::new("/", "get").summary("Say hello")
     }
 }
 

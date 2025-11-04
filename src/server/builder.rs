@@ -290,8 +290,15 @@ impl ServerBuilder {
             "get" => {
                 let ep = endpoint.clone();
                 get_with(
-                    move |axum::Json(payload): axum::Json<E::Req>| {
-                        handler(ep.clone(), axum::Json(payload))
+                    move || {
+                        let ep = ep.clone();
+                        async move {
+                            let ctx = Context {
+                                req: E::Req::default(),
+                                headers: Default::default(),
+                            };
+                            ep.handler(ctx).await
+                        }
                     },
                     |op| {
                         op.summary(summary)
