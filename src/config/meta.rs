@@ -1,4 +1,4 @@
-//! Application configuration types for Uncover framework.
+//! Application configuration types for Uncovr framework.
 //!
 //! This module provides configuration structures for managing application settings,
 //! including logging, CORS, environment settings, and more.
@@ -380,8 +380,8 @@ fn default_connection_timeout() -> u64 {
 impl Default for AppConfig {
     fn default() -> Self {
         Self {
-            name: "Uncover API".to_string(),
-            description: "API built with Uncover framework".to_string(),
+            name: "Uncovr API".to_string(),
+            description: "API built with Uncovr framework".to_string(),
             version: "1.0.0".to_string(),
             bind_address: default_bind_address(),
             environment: Environment::Development,

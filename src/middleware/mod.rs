@@ -1,4 +1,4 @@
-//! Middleware utilities for Uncover.
+//! Middleware utilities for Uncovr.
 //!
 //! This module provides middleware types and utilities. Currently, logging
 //! is handled automatically by the server builder based on configuration,

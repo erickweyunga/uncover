@@ -1,4 +1,4 @@
-//! Server module for Uncover framework.
+//! Server module for Uncovr framework.
 //!
 //! Provides a modular API for building HTTP servers with type-safe endpoints.
 //!

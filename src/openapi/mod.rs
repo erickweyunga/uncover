@@ -1,4 +1,4 @@
-//! OpenAPI documentation support for Uncover.
+//! OpenAPI documentation support for Uncovr.
 //!
 //! This module provides automatic OpenAPI 3.0 documentation generation
 //! for your API endpoints.
@@ -58,7 +58,7 @@
 //!     use uncovr::server::Server;
 //!
 //!     let config = AppConfig::new("My API", "1.0.0")
-//!         .description("A simple API built with Uncover")
+//!         .description("A simple API built with Uncovr")
 //!         .docs(true);
 //!
 //!     Server::new()

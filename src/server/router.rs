@@ -1,6 +1,6 @@
 use axum::Router;
 
-/// Extension trait for Router to add Uncover-specific functionality.
+/// Extension trait for Router to add Uncovr-specific functionality.
 ///
 /// This trait is automatically implemented for all Axum Routers.
 pub trait RouterExt {

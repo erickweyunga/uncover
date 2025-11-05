@@ -1,9 +1,9 @@
-//! # Uncover
+//! # Uncovr
 //!
 //! A modular microbackend framework for building type-safe, production-ready REST APIs
 //! with minimal boilerplate and automatic documentation.
 //!
-//! Uncover enables you to build composable, self-contained API modules (microbackends)
+//! Uncovr enables you to build composable, self-contained API modules (microbackends)
 //! with automatic OpenAPI documentation, built-in logging, CORS support, and a clean
 //! configuration system. Each endpoint is a standalone module that can be developed,
 //! tested, and deployed independently.
@@ -154,7 +154,7 @@
 //!
 //! ## Logging
 //!
-//! Uncover includes built-in structured logging:
+//! Uncovr includes built-in structured logging:
 //!
 //! ```rust
 //! use uncovr::config::{LoggingConfig, LogLevel, LogFormat};
