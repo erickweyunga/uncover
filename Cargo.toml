@@ -14,7 +14,6 @@ categories = ["web-programming::http-server", "web-programming", "api-bindings"]
 rust-version = "1.85.0"
 exclude = [
     "examples/",
-    "benches/",
     "scripts/",
     ".github/",
     ".gitignore",
