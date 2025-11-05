@@ -12,7 +12,13 @@ readme = "README.md"
 keywords = ["microbackend", "api", "modular", "openapi", "rest"]
 categories = ["web-programming::http-server", "web-programming", "api-bindings"]
 rust-version = "1.85.0"
-exclude = ["examples/", "scripts/", ".github/", ".gitignore"]
+exclude = [
+    "examples/",
+    "scripts/",
+    ".github/",
+    ".gitignore",
+    "docs/",
+]
 
 [workspace]
 members = [".", "examples/api", "examples/routes"]
