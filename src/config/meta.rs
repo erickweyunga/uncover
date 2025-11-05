@@ -31,7 +31,7 @@ use std::collections::HashMap;
 /// let level = LogLevel::Debug;
 /// assert_eq!(level.as_filter(), "debug");
 /// ```
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
 #[serde(rename_all = "lowercase")]
 pub enum LogLevel {
     /// Most verbose level - includes all log messages
@@ -39,6 +39,7 @@ pub enum LogLevel {
     /// Debug information useful for development
     Debug,
     /// General informational messages
+    #[default]
     Info,
     /// Warning messages for potentially problematic situations
     Warn,
@@ -56,12 +57,6 @@ impl LogLevel {
             Self::Warn => "warn",
             Self::Error => "error",
         }
-    }
-}
-
-impl Default for LogLevel {
-    fn default() -> Self {
-        Self::Info
     }
 }
 
@@ -209,21 +204,16 @@ impl LoggingConfig {
 /// Application environment setting.
 ///
 /// Determines default configurations for logging, CORS, and other settings.
-#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, Default)]
 #[serde(rename_all = "lowercase")]
 pub enum Environment {
     /// Development environment with verbose logging and permissive CORS
+    #[default]
     Development,
     /// Staging environment with production-like settings for testing
     Staging,
     /// Production environment with optimized settings and restricted CORS
     Production,
-}
-
-impl Default for Environment {
-    fn default() -> Self {
-        Self::Development
-    }
 }
 
 /// CORS configuration
