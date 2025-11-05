@@ -1,18 +1,32 @@
 # Uncover
 
-Uncover is a web framework that focuses on type safety and automatic API documentation.
+A modular microbackend framework for building type-safe REST APIs with automatic documentation and minimal boilerplate.
+
+Uncover enables you to build composable, self-contained API modules (microbackends) where each endpoint is an independent, testable unit. Perfect for building scalable APIs, microservices, and modular backend systems.
 
 More information about this crate can be found in the [crate documentation](https://docs.rs/uncover).
 
-## High level features
+## Why Uncover?
 
-- Type-safe request and response handling with compile-time validation.
-- Automatic OpenAPI documentation generation with interactive UI.
-- Built-in structured logging and request tracing.
-- Environment-based configuration presets for development and production.
-- Built on top of Axum and Tower, giving you access to the entire ecosystem.
+**Microbackend Architecture** - Build APIs as a collection of independent, composable modules. Each endpoint is self-contained with its own types, validation, and documentation.
 
-In particular the last point is what makes Uncover flexible. Since it's built on Axum and Tower, you get access to middleware for timeouts, tracing, compression, authorization, and more. It also enables you to share middleware with applications written using Axum, Hyper, or Tonic.
+**Type-Safe from the Ground Up** - Full compile-time validation of requests and responses. Catch errors before runtime.
+
+**Zero-Config Documentation** - OpenAPI documentation generated automatically from your types. Interactive UI included out of the box.
+
+**Modular by Design** - Each endpoint is an independent module that can be developed, tested, and maintained separately.
+
+**Production-Ready** - Built-in logging, CORS, error handling, and environment-based configuration.
+
+## Key Features
+
+- **Microbackend Architecture** - Composable, self-contained API modules
+- **Auto-generated OpenAPI Docs** - Interactive Scalar UI included
+- **Type-Safe Endpoints** - Compile-time request/response validation
+- **Modular Design** - Independent, testable endpoint modules
+- **Built-in Middleware** - Logging, CORS, compression, tracing
+- **Environment Config** - Development and production presets
+- **Minimal Boilerplate** - Focus on business logic, not framework code
 
 ## Usage example
 

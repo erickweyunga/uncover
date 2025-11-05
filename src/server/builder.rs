@@ -4,18 +4,18 @@ use std::time::Duration;
 use tokio::net::TcpListener;
 
 use aide::axum::{
-    ApiRouter,
     routing::{delete_with, get_with, patch_with, post_with, put_with},
+    ApiRouter,
 };
-use axum::Extension;
 use axum::http::{HeaderValue, Method, Request, Response};
+use axum::Extension;
 use tower_http::cors::{AllowOrigin, Any, CorsLayer};
 use tower_http::trace::{MakeSpan, OnResponse, TraceLayer};
 
 use crate::api::api::API;
 use crate::config::{AppConfig, CorsConfig};
 use crate::context::Context;
-use crate::openapi::{OpenApiConfig, serve_docs, serve_scalar_ui};
+use crate::openapi::{serve_docs, serve_scalar_ui, OpenApiConfig};
 
 /// Custom request span maker that logs essential request information.
 ///
@@ -554,6 +554,31 @@ impl ServerBuilder {
         cors
     }
 
+    /// Build and start serving the application.
+    ///
+    /// This is a convenience method that combines `build()` and `serve()` into a single call.
+    ///
+    /// # Errors
+    ///
+    /// Returns an error if the server fails to bind to the configured address or
+    /// encounters an error while serving requests.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use uncover::prelude::*;
+    ///
+    /// # #[tokio::main]
+    /// # async fn main() {
+    /// let config = AppConfig::new("My API", "1.0.0");
+    ///
+    /// Server::new()
+    ///     .with_config(config)
+    ///     .serve()
+    ///     .await
+    ///     .expect("Server failed");
+    /// # }
+    /// ```
     pub async fn serve(self) -> Result<(), std::io::Error> {
         self.build().serve().await
     }

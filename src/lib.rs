@@ -1,11 +1,12 @@
 //! # Uncover
 //!
-//! A modular Rust API framework built on top of Axum, designed for building type-safe,
-//! production-ready HTTP APIs with minimal boilerplate.
+//! A modular microbackend framework for building type-safe, production-ready REST APIs
+//! with minimal boilerplate and automatic documentation.
 //!
-//! Uncover provides automatic OpenAPI documentation generation, built-in logging,
-//! CORS support, and a clean configuration system, while maintaining full compatibility
-//! with the Axum ecosystem.
+//! Uncover enables you to build composable, self-contained API modules (microbackends)
+//! with automatic OpenAPI documentation, built-in logging, CORS support, and a clean
+//! configuration system. Each endpoint is a standalone module that can be developed,
+//! tested, and deployed independently.
 //!
 //! ## Quick Start
 //!
@@ -68,14 +69,15 @@
 //!
 //! ## Features
 //!
-//! - **Auto-generated OpenAPI Documentation** - Automatic API docs with Scalar UI
-//! - **Built-in Logging** - Structured logging powered by tracing
-//! - **CORS Support** - Configurable CORS with environment-based presets
-//! - **Type-Safe** - Full compile-time type checking for requests and responses
-//! - **Configuration Management** - Centralized config via meta.rs pattern
-//! - **Minimal Boilerplate** - Focus on business logic, not plumbing
-//! - **Axum Compatible** - Use any Axum extractors, middleware, and responses
-//! - **Async/Await** - Built for modern async Rust
+//! - **Microbackend Architecture** - Build composable, self-contained API modules
+//! - **Auto-generated OpenAPI Documentation** - Interactive API docs with Scalar UI
+//! - **Type-Safe Endpoints** - Full compile-time type checking for requests and responses
+//! - **Modular Design** - Each endpoint is an independent, testable module
+//! - **Built-in Logging** - Structured logging with development and production modes
+//! - **CORS Support** - Environment-based CORS configuration out of the box
+//! - **Configuration Management** - Centralized, type-safe configuration
+//! - **Minimal Boilerplate** - Focus on business logic, not framework code
+//! - **Production-Ready** - Built-in middleware, error handling, and best practices
 //!
 //! ## Configuration
 //!
@@ -174,13 +176,46 @@
 //! ]);
 //! ```
 
+/// Core API traits and types for defining endpoints.
+///
+/// This module contains the fundamental [`API`](api::api::API) trait that all endpoints must implement.
 pub mod api;
+
+/// Configuration types for application settings, logging, CORS, and environments.
+///
+/// Provides [`AppConfig`](config::AppConfig), [`LoggingConfig`](config::LoggingConfig),
+/// and [`CorsConfig`](config::CorsConfig) for configuring the server.
 pub mod config;
+
+/// Request context types passed to endpoint handlers.
+///
+/// Contains the [`Context`](context::Context) struct that wraps request data and headers.
 pub mod context;
+
+/// Logging initialization and utilities.
+///
+/// Provides structured logging setup with support for development and production formats.
 pub mod logging;
+
+/// Middleware utilities and helpers.
+///
+/// Additional middleware components for the framework.
 pub mod middleware;
+
+/// OpenAPI documentation generation and serving.
+///
+/// Automatic API documentation generation with Scalar UI integration.
 pub mod openapi;
+
+/// Commonly used types and traits.
+///
+/// Import everything you need with `use uncover::prelude::*;`
 pub mod prelude;
+
+/// Server builder and routing functionality.
+///
+/// Contains the [`Server`](server::Server) and [`ServerBuilder`](server::ServerBuilder)
+/// for configuring and running the HTTP server.
 pub mod server;
 
 // Re-export schemars so derive macros work in user code

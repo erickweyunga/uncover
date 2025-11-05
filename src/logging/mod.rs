@@ -19,7 +19,7 @@
 //! ```
 
 use crate::config::{LogFormat, LoggingConfig};
-use tracing_subscriber::{EnvFilter, fmt, layer::SubscriberExt, util::SubscriberInitExt};
+use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
 
 /// Initialize the logging system based on configuration.
 ///
@@ -88,6 +88,20 @@ pub fn init(config: &LoggingConfig) {
     }
 }
 
+/// Creates a tracing span for HTTP requests.
+///
+/// This macro simplifies creating tracing spans for HTTP requests with
+/// method and path information.
+///
+/// # Examples
+///
+/// ```rust
+/// use uncover::request_span;
+///
+/// let span = request_span!("GET", "/api/users");
+/// let _enter = span.enter();
+/// // Your request handling code here
+/// ```
 #[macro_export]
 macro_rules! request_span {
     ($method:expr, $path:expr) => {

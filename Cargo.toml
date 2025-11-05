@@ -3,8 +3,22 @@ name = "uncover"
 version = "0.1.0"
 edition = "2024"
 authors = ["Eric Kweyunga <maverickweyunga@gmail.com>"]
-description = "A web framework that focuses on type safety and automatic API documentation"
+description = "A modular microbackend framework for building type-safe REST APIs with automatic OpenAPI documentation and minimal boilerplate"
 license = "MIT"
+repository = "https://github.com/erickweyunga/uncover"
+homepage = "https://github.com/erickweyunga/uncover"
+documentation = "https://docs.rs/uncover"
+readme = "README.md"
+keywords = ["microbackend", "api", "modular", "openapi", "rest"]
+categories = ["web-programming::http-server", "web-programming", "api-bindings"]
+rust-version = "1.70"
+exclude = [
+    "examples/",
+    "benches/",
+    "scripts/",
+    ".github/",
+    ".gitignore",
+]
 
 [dependencies]
 tokio = { version = "1.35", features = ["rt-multi-thread", "net", "macros", "time"] }
@@ -32,7 +46,7 @@ tower-http = { version = "0.5.0", features = ["cors", "trace", "compression-gzip
 tower-layer = "0.3.2"
 tower-service = "0.3.2"
 
-# OpenAPI dependencies (always enabled)
+# OpenAPI dependencies
 aide = { version = "0.13.0", default-features = false, features = ["axum", "macros", "redoc", "scalar"] }
 schemars = { version = "0.8.16", features = ["derive"] }
 

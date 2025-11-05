@@ -206,12 +206,17 @@ impl LoggingConfig {
     }
 }
 
-/// Application environment
+/// Application environment setting.
+///
+/// Determines default configurations for logging, CORS, and other settings.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(rename_all = "lowercase")]
 pub enum Environment {
+    /// Development environment with verbose logging and permissive CORS
     Development,
+    /// Staging environment with production-like settings for testing
     Staging,
+    /// Production environment with optimized settings and restricted CORS
     Production,
 }
 
@@ -359,10 +364,14 @@ pub struct AppConfig {
     pub connection_timeout: u64,
 }
 
-/// OpenAPI server configuration
+/// OpenAPI server configuration.
+///
+/// Defines a server entry in the OpenAPI specification for API documentation.
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct ApiServer {
+    /// The URL of the API server
     pub url: String,
+    /// Description of this server instance
     pub description: String,
 }
 
@@ -524,7 +533,7 @@ mod tests {
         let config = AppConfig::new("My API", "1.0.0")
             .environment(Environment::Production)
             .cors(CorsConfig::production(vec![
-                "https://example.com".to_string(),
+                "https://example.com".to_string()
             ]));
 
         assert_eq!(config.environment, Environment::Production);
