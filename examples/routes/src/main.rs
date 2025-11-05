@@ -1,6 +1,6 @@
 use uncovr::{prelude::*, server::Server};
 
-// Test path parameter
+// path parameter
 #[derive(Clone)]
 pub struct GreetByName;
 
@@ -21,13 +21,18 @@ impl API for GreetByName {
     }
 }
 
-// Test query parameters
+// query parameters
 #[derive(Clone)]
 pub struct ListItems;
 
 impl Metadata for ListItems {
     fn metadata(&self) -> Endpoint {
-        Endpoint::new("/items", "get").summary("List items with pagination")
+        Endpoint::new("/items", "get")
+            .summary("List items with pagination")
+            .query("page")
+            .desc("Page number")
+            .query("limit")
+            .desc("Items per page")
     }
 }
 
@@ -43,7 +48,7 @@ impl API for ListItems {
     }
 }
 
-// Test multiple path params
+// multiple path params
 #[derive(Clone)]
 pub struct GetUserPost;
 
@@ -51,6 +56,10 @@ impl Metadata for GetUserPost {
     fn metadata(&self) -> Endpoint {
         Endpoint::new("/users/:user_id/posts/:post_id", "get")
             .summary("Get a specific post from a user")
+            .path_param("user_id")
+            .desc("User ID")
+            .path_param("post_id")
+            .desc("Post ID")
     }
 }
 

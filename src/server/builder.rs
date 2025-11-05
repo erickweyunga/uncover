@@ -206,6 +206,17 @@ impl Default for ServerBuilder {
     }
 }
 
+/// Parameter information for OpenAPI documentation
+#[derive(Debug, Clone)]
+pub struct ParamInfo {
+    /// Parameter name
+    pub name: &'static str,
+    /// Parameter description
+    pub description: Option<&'static str>,
+    /// Whether the parameter is required
+    pub required: bool,
+}
+
 /// Endpoint metadata for API documentation
 pub struct Endpoint {
     /// The path for this endpoint (e.g., "/users", "/users/:id")
@@ -216,6 +227,10 @@ pub struct Endpoint {
     pub summary: Option<&'static str>,
     /// Optional description for detailed documentation
     pub description: Option<&'static str>,
+    /// Query parameters for this endpoint
+    pub query_params: Vec<ParamInfo>,
+    /// Path parameters for this endpoint
+    pub path_params: Vec<ParamInfo>,
 }
 
 impl Endpoint {
@@ -226,6 +241,8 @@ impl Endpoint {
             method,
             summary: None,
             description: None,
+            query_params: Vec::new(),
+            path_params: Vec::new(),
         }
     }
 
@@ -238,6 +255,44 @@ impl Endpoint {
     /// Set the detailed description
     pub fn description(mut self, description: &'static str) -> Self {
         self.description = Some(description);
+        self
+    }
+
+    /// Add a query parameter
+    pub fn query(mut self, name: &'static str) -> Self {
+        self.query_params.push(ParamInfo {
+            name,
+            description: None,
+            required: false,
+        });
+        self
+    }
+
+    /// Add a path parameter
+    pub fn path_param(mut self, name: &'static str) -> Self {
+        self.path_params.push(ParamInfo {
+            name,
+            description: None,
+            required: true,
+        });
+        self
+    }
+
+    /// Mark the last added query parameter as required
+    pub fn required(mut self) -> Self {
+        if let Some(param) = self.query_params.last_mut() {
+            param.required = true;
+        }
+        self
+    }
+
+    /// Add description to the last added parameter
+    pub fn desc(mut self, description: &'static str) -> Self {
+        if let Some(param) = self.query_params.last_mut() {
+            param.description = Some(description);
+        } else if let Some(param) = self.path_params.last_mut() {
+            param.description = Some(description);
+        }
         self
     }
 }
