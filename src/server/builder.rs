@@ -378,7 +378,6 @@ impl ServerBuilder {
         let method = meta.method;
         let summary = meta.summary.unwrap_or("");
 
-        // Wrap endpoint in Arc to avoid cloning on every request
         let endpoint = Arc::new(endpoint);
 
         let route = match method {
@@ -403,7 +402,6 @@ impl ServerBuilder {
                         }
                     },
                     |mut op| {
-                        // Add query parameters to OpenAPI spec
                         for param in &meta.query_params {
                             op.inner_mut()
                                 .parameters
@@ -438,7 +436,6 @@ impl ServerBuilder {
                         }
                     },
                     |mut op| {
-                        // Add query parameters to OpenAPI spec
                         for param in &meta.query_params {
                             op.inner_mut()
                                 .parameters
@@ -473,7 +470,6 @@ impl ServerBuilder {
                         }
                     },
                     |mut op| {
-                        // Add query parameters to OpenAPI spec
                         for param in &meta.query_params {
                             op.inner_mut()
                                 .parameters
@@ -508,7 +504,6 @@ impl ServerBuilder {
                         }
                     },
                     |mut op| {
-                        // Add query parameters to OpenAPI spec
                         for param in &meta.query_params {
                             op.inner_mut()
                                 .parameters
@@ -543,7 +538,6 @@ impl ServerBuilder {
                         }
                     },
                     |mut op| {
-                        // Add query parameters to OpenAPI spec
                         for param in &meta.query_params {
                             op.inner_mut()
                                 .parameters
@@ -577,7 +571,6 @@ impl ServerBuilder {
                         }
                     },
                     |mut op| {
-                        // Add query parameters to OpenAPI spec
                         for param in &meta.query_params {
                             op.inner_mut()
                                 .parameters
