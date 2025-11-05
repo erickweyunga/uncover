@@ -121,6 +121,7 @@ pub struct Server {
 
 impl Server {
     /// Create a new server builder
+    #[allow(clippy::new_ret_no_self)]
     pub fn new() -> ServerBuilder {
         ServerBuilder::default()
     }
@@ -138,7 +139,7 @@ impl Server {
 
         axum::serve(listener, self.router.into_make_service())
             .await
-            .map_err(|e| std::io::Error::new(std::io::ErrorKind::Other, e))
+            .map_err(std::io::Error::other)
     }
 }
 
@@ -441,7 +442,7 @@ impl ServerBuilder {
             .config
             .as_ref()
             .map(|c| c.cors.clone())
-            .unwrap_or_else(|| CorsConfig::default());
+            .unwrap_or_default();
 
         // Build CORS layer based on configuration
         let cors = self.build_cors_layer(&cors_config);

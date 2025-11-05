@@ -1,0 +1,19 @@
+[default]
+extend-ignore-re = [
+  # Ignore common code patterns
+  "(?i)ba[ds]e64",
+
+  # Ignore hex strings
+  "[0-9a-fA-F]{8,}",
+]
+
+[files]
+extend-exclude = [
+  "target/",
+  "Cargo.lock",
+  "*.md5",
+  "*.sha256",
+]
+
+[default.extend-words]
+uncovr = "uncovr"

@@ -6,7 +6,7 @@
 
 use aide::openapi::OpenApi;
 use axum::extract::Extension;
-use axum::http::{header, StatusCode};
+use axum::http::{StatusCode, header};
 use axum::response::{IntoResponse, Response};
 
 // Include the static HTML file at compile time

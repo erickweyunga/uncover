@@ -1,0 +1,131 @@
+name: CI
+
+env:
+  CARGO_TERM_COLOR: always
+  MSRV: '1.85.0'
+
+on:
+  push:
+    branches:
+      - main
+      - v0.*
+  pull_request: {}
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v5
+    - uses: dtolnay/rust-toolchain@stable
+      with:
+        components: clippy, rustfmt
+    - uses: Swatinem/rust-cache@v2
+      with:
+        save-if: ${{ github.ref == 'refs/heads/main' }}
+    - name: Check
+      run: cargo clippy --workspace --all-targets --all-features -- -D warnings
+    - name: rustfmt
+      run: cargo fmt --all --check
+
+  check-docs:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v5
+    - uses: dtolnay/rust-toolchain@stable
+    - uses: Swatinem/rust-cache@v2
+      with:
+        save-if: ${{ github.ref == 'refs/heads/main' }}
+    - name: cargo doc
+      run: cargo doc --package uncovr --all-features --no-deps
+    env:
+      RUSTDOCFLAGS: "-D rustdoc::all -A rustdoc::private-doc-tests"
+
+  test-versions:
+    needs: check
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        rust: [stable, beta]
+    steps:
+    - uses: actions/checkout@v5
+    - uses: dtolnay/rust-toolchain@master
+      with:
+        toolchain: ${{ matrix.rust }}
+    - uses: Swatinem/rust-cache@v2
+      with:
+        save-if: ${{ github.ref == 'refs/heads/main' }}
+    - name: Run tests
+      run: cargo test --workspace --all-features --all-targets
+
+  test-msrv:
+    needs: check
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v5
+    - uses: dtolnay/rust-toolchain@master
+      with:
+        toolchain: ${{ env.MSRV }}
+    - uses: Swatinem/rust-cache@v2
+      with:
+        save-if: ${{ github.ref == 'refs/heads/main' }}
+    - name: Run tests
+      run: cargo test --workspace --all-features --locked
+
+  test-docs:
+    needs: check
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v5
+    - uses: dtolnay/rust-toolchain@stable
+    - uses: Swatinem/rust-cache@v2
+      with:
+        save-if: ${{ github.ref == 'refs/heads/main' }}
+    - name: Run doc tests
+      run: cargo test --all-features --doc
+
+  test-examples:
+    needs: check
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v5
+    - uses: dtolnay/rust-toolchain@stable
+    - uses: Swatinem/rust-cache@v2
+      with:
+        save-if: ${{ github.ref == 'refs/heads/main' }}
+    - name: Check examples
+      run: cargo check --manifest-path examples/api/Cargo.toml
+
+  deny-check:
+    name: cargo-deny check
+    runs-on: ubuntu-24.04
+    continue-on-error: ${{ matrix.checks == 'advisories' }}
+    strategy:
+      matrix:
+        checks:
+          - advisories
+          - bans licenses sources
+    steps:
+      - uses: actions/checkout@v5
+      - uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          command: check ${{ matrix.checks }}
+
+  dependencies-are-sorted:
+    runs-on: ubuntu-24.04
+    steps:
+    - uses: actions/checkout@v5
+    - name: Install cargo-sort
+      uses: taiki-e/install-action@v2
+      with:
+        tool: cargo-sort
+    - name: Check dependency tables
+      run: cargo-sort --workspace --grouped --check
+
+  typos:
+    name: Spell Check with Typos
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v5
+      - name: Check spelling
+        uses: crate-ci/typos@v1.29.4
