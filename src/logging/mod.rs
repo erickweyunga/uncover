@@ -19,7 +19,7 @@
 //! ```
 
 use crate::config::{LogFormat, LoggingConfig};
-use tracing_subscriber::{fmt, layer::SubscriberExt, util::SubscriberInitExt, EnvFilter};
+use tracing_subscriber::{EnvFilter, fmt, layer::SubscriberExt, util::SubscriberInitExt};
 
 /// Initialize the logging system based on configuration.
 ///
@@ -67,7 +67,7 @@ pub fn init(config: &LoggingConfig) {
 
     match config.format {
         LogFormat::Pretty => {
-            tracing_subscriber::registry()
+            let _ = tracing_subscriber::registry()
                 .with(filter)
                 .with(
                     fmt::layer()
@@ -77,13 +77,13 @@ pub fn init(config: &LoggingConfig) {
                         .with_line_number(false)
                         .compact(),
                 )
-                .init();
+                .try_init();
         }
         LogFormat::Json => {
-            tracing_subscriber::registry()
+            let _ = tracing_subscriber::registry()
                 .with(filter)
                 .with(fmt::layer().with_file(true).with_line_number(true).json())
-                .init();
+                .try_init();
         }
     }
 }

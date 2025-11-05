@@ -125,6 +125,11 @@ impl Server {
         ServerBuilder::default()
     }
 
+    /// Get the underlying router (useful for benchmarking and testing)
+    pub fn into_router(self) -> ApiRouter {
+        self.router
+    }
+
     /// Start serving the application
     pub async fn serve(self) -> Result<(), std::io::Error> {
         let listener = TcpListener::bind(self.address).await?;

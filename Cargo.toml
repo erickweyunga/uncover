@@ -47,6 +47,9 @@ logging = ["tower-http/trace"]
 [workspace]
 members = [
     ".",
-    "examples/hello-api"
-]
+    "examples/api"]
 resolver = "2"
+
+[[bench]]
+name = "framework"
+harness = false

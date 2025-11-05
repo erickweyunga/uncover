@@ -7,7 +7,7 @@ The simplest possible Uncover API - returns "Hello, World!" from a single GET en
 ```bash
 # Clone the repository
 git clone https://github.com/erickweyunga/uncover.git
-cd uncover/examples/hello-api
+cd uncover/examples/api
 
 # Run the example
 cargo run

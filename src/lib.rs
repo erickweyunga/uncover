@@ -183,6 +183,9 @@ pub mod openapi;
 pub mod prelude;
 pub mod server;
 
+// Re-export schemars so derive macros work in user code
+pub use schemars;
+
 // Re-export commonly used Axum modules at the root level
 pub mod http {
     //! HTTP types re-exported from Axum.

@@ -36,9 +36,15 @@ By participating in this project, you agree to maintain a respectful and inclusi
    cargo test
    ```
 
-4. Run the hello-api example:
+4. Run benchmarks:
    ```bash
-   cd examples/hello-api
+   cargo bench
+   ```
+   See [benches/README.md](benches/README.md) for more details.
+
+5. Run the api example:
+   ```bash
+   cd examples/api
    cargo run
    ```
 
@@ -77,7 +83,7 @@ By participating in this project, you agree to maintain a respectful and inclusi
 
 - Test examples to ensure they work:
   ```bash
-  cd examples/hello-api && cargo run
+  cd examples/api && cargo run
   ```
 
 ### Commit Messages
@@ -125,16 +131,24 @@ if necessary. Keep lines under 72 characters.
 ```
 uncover/
 ├── src/
+│   ├── api/            # Core API traits
 │   ├── config/         # Configuration system
 │   ├── context/        # Request context
 │   ├── logging/        # Logging initialization
+│   ├── middleware/     # Middleware utilities
+│   ├── openapi/        # OpenAPI documentation
 │   ├── server/         # Server builder and traits
 │   └── lib.rs          # Main library entry point
+├── benches/
+│   ├── framework.rs    # Performance benchmarks
+│   └── README.md       # Benchmark documentation
 ├── examples/
-│   └── hello-api/      # Hello World example
+│   └── api/            # Example API application
+├── scripts/
+│   └── run_benchmarks.sh  # Benchmark helper script
 ├── CHANGELOG.md        # Version history
 ├── CONTRIBUTING.md     # This file
-└── README.md          # Project documentation
+└── README.md           # Project documentation
 ```
 
 ## Adding New Features
