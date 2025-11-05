@@ -418,8 +418,29 @@ impl AppConfig {
     }
 
     /// Set the bind address
+    ///
+    /// This automatically updates the api_servers list to match the bind address,
+    /// ensuring the OpenAPI documentation shows the correct server URL.
     pub fn bind(mut self, address: impl Into<String>) -> Self {
-        self.bind_address = address.into();
+        let addr = address.into();
+        self.bind_address = addr.clone();
+
+        let url = if addr.starts_with("0.0.0.0:") {
+            format!(
+                "http://localhost:{}",
+                addr.strip_prefix("0.0.0.0:").unwrap()
+            )
+        } else if addr.starts_with("127.0.0.1:") || addr.starts_with("localhost:") {
+            format!("http://{}", addr)
+        } else {
+            format!("http://{}", addr)
+        };
+
+        self.api_servers = vec![ApiServer {
+            url,
+            description: "Local development".to_string(),
+        }];
+
         self
     }
 
