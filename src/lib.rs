@@ -273,6 +273,8 @@ mod tests {
         let ctx = Context {
             req: "request".to_string(),
             headers: Arc::new(HeaderMap::new()),
+            path: PathParams::empty(),
+            query: QueryParams::empty(),
         };
         assert_eq!(ctx.req, "request");
     }

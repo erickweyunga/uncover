@@ -16,6 +16,7 @@ use crate::api::api::API;
 use crate::config::{AppConfig, CorsConfig};
 use crate::context::Context;
 use crate::openapi::{OpenApiConfig, serve_docs, serve_scalar_ui};
+use crate::server::params::{PathParams, QueryParams};
 
 /// Custom request span maker that logs essential request information.
 ///
@@ -207,12 +208,14 @@ impl Default for ServerBuilder {
 
 /// Endpoint metadata for API documentation
 pub struct Endpoint {
-    /// The path for this endpoint (e.g., "/users")
+    /// The path for this endpoint (e.g., "/users", "/users/:id")
     pub path: &'static str,
     /// The HTTP method (e.g., "get", "post", "put", "delete", "patch")
     pub method: &'static str,
     /// Optional summary description for this endpoint
     pub summary: Option<&'static str>,
+    /// Optional description for detailed documentation
+    pub description: Option<&'static str>,
 }
 
 impl Endpoint {
@@ -222,12 +225,19 @@ impl Endpoint {
             path,
             method,
             summary: None,
+            description: None,
         }
     }
 
     /// Set the summary description
     pub fn summary(mut self, summary: &'static str) -> Self {
         self.summary = Some(summary);
+        self
+    }
+
+    /// Set the detailed description
+    pub fn description(mut self, description: &'static str) -> Self {
+        self.description = Some(description);
         self
     }
 }
@@ -289,12 +299,19 @@ impl ServerBuilder {
             "get" => {
                 let ep = Arc::clone(&endpoint);
                 get_with(
-                    move || {
+                    move |axum::extract::Path(path_params): axum::extract::Path<
+                        std::collections::HashMap<String, String>,
+                    >,
+                          axum::extract::Query(query_params): axum::extract::Query<
+                        std::collections::HashMap<String, String>,
+                    >| {
                         let ep = Arc::clone(&ep);
                         async move {
                             let ctx = Context {
                                 req: E::Req::default(),
                                 headers: Default::default(),
+                                path: PathParams::new(path_params),
+                                query: QueryParams::new(query_params),
                             };
                             ep.handler(ctx).await
                         }
@@ -309,12 +326,20 @@ impl ServerBuilder {
             "post" => {
                 let ep = Arc::clone(&endpoint);
                 post_with(
-                    move |axum::Json(payload): axum::Json<E::Req>| {
+                    move |axum::extract::Path(path_params): axum::extract::Path<
+                        std::collections::HashMap<String, String>,
+                    >,
+                          axum::extract::Query(query_params): axum::extract::Query<
+                        std::collections::HashMap<String, String>,
+                    >,
+                          axum::Json(payload): axum::Json<E::Req>| {
                         let ep = Arc::clone(&ep);
                         async move {
                             let ctx = Context {
                                 req: payload,
                                 headers: Default::default(),
+                                path: PathParams::new(path_params),
+                                query: QueryParams::new(query_params),
                             };
                             ep.handler(ctx).await
                         }
@@ -329,12 +354,20 @@ impl ServerBuilder {
             "put" => {
                 let ep = Arc::clone(&endpoint);
                 put_with(
-                    move |axum::Json(payload): axum::Json<E::Req>| {
+                    move |axum::extract::Path(path_params): axum::extract::Path<
+                        std::collections::HashMap<String, String>,
+                    >,
+                          axum::extract::Query(query_params): axum::extract::Query<
+                        std::collections::HashMap<String, String>,
+                    >,
+                          axum::Json(payload): axum::Json<E::Req>| {
                         let ep = Arc::clone(&ep);
                         async move {
                             let ctx = Context {
                                 req: payload,
                                 headers: Default::default(),
+                                path: PathParams::new(path_params),
+                                query: QueryParams::new(query_params),
                             };
                             ep.handler(ctx).await
                         }
@@ -349,12 +382,20 @@ impl ServerBuilder {
             "delete" => {
                 let ep = Arc::clone(&endpoint);
                 delete_with(
-                    move |axum::Json(payload): axum::Json<E::Req>| {
+                    move |axum::extract::Path(path_params): axum::extract::Path<
+                        std::collections::HashMap<String, String>,
+                    >,
+                          axum::extract::Query(query_params): axum::extract::Query<
+                        std::collections::HashMap<String, String>,
+                    >,
+                          axum::Json(payload): axum::Json<E::Req>| {
                         let ep = Arc::clone(&ep);
                         async move {
                             let ctx = Context {
                                 req: payload,
                                 headers: Default::default(),
+                                path: PathParams::new(path_params),
+                                query: QueryParams::new(query_params),
                             };
                             ep.handler(ctx).await
                         }
@@ -369,12 +410,20 @@ impl ServerBuilder {
             "patch" => {
                 let ep = Arc::clone(&endpoint);
                 patch_with(
-                    move |axum::Json(payload): axum::Json<E::Req>| {
+                    move |axum::extract::Path(path_params): axum::extract::Path<
+                        std::collections::HashMap<String, String>,
+                    >,
+                          axum::extract::Query(query_params): axum::extract::Query<
+                        std::collections::HashMap<String, String>,
+                    >,
+                          axum::Json(payload): axum::Json<E::Req>| {
                         let ep = Arc::clone(&ep);
                         async move {
                             let ctx = Context {
                                 req: payload,
                                 headers: Default::default(),
+                                path: PathParams::new(path_params),
+                                query: QueryParams::new(query_params),
                             };
                             ep.handler(ctx).await
                         }
@@ -389,12 +438,19 @@ impl ServerBuilder {
             _ => {
                 let ep = Arc::clone(&endpoint);
                 get_with(
-                    move |axum::Json(payload): axum::Json<E::Req>| {
+                    move |axum::extract::Path(path_params): axum::extract::Path<
+                        std::collections::HashMap<String, String>,
+                    >,
+                          axum::extract::Query(query_params): axum::extract::Query<
+                        std::collections::HashMap<String, String>,
+                    >| {
                         let ep = Arc::clone(&ep);
                         async move {
                             let ctx = Context {
-                                req: payload,
+                                req: E::Req::default(),
                                 headers: Default::default(),
+                                path: PathParams::new(path_params),
+                                query: QueryParams::new(query_params),
                             };
                             ep.handler(ctx).await
                         }

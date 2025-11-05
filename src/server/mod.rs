@@ -41,7 +41,9 @@
 //! ```
 
 mod builder;
+pub mod params;
 mod router;
 
 pub use builder::{Endpoint, Metadata, Server, ServerBuilder};
+pub use params::{PathParams, QueryParams};
 pub use router::RouterExt;

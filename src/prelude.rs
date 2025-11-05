@@ -8,7 +8,7 @@ pub use crate::api::api::API;
 pub use crate::config::{AppConfig, CorsConfig, Environment, LogFormat, LogLevel, LoggingConfig};
 pub use crate::context::Context;
 pub use crate::logging;
-pub use crate::server::{Endpoint, Metadata};
+pub use crate::server::{Endpoint, Metadata, PathParams, QueryParams};
 
 // Re-export axum types
 pub use axum::Json;

@@ -6,10 +6,12 @@
 use axum::http::HeaderMap;
 use std::sync::Arc;
 
+use crate::server::params::{PathParams, QueryParams};
+
 /// Request context passed to API handlers.
 ///
-/// Contains the deserialized request body and HTTP headers,
-/// providing access to all request information needed by handlers.
+/// Contains the deserialized request body, HTTP headers, path parameters,
+/// and query parameters, providing access to all request information needed by handlers.
 ///
 /// Headers are wrapped in `Arc` for zero-copy sharing across async tasks.
 ///
@@ -23,38 +25,76 @@ use std::sync::Arc;
 /// use uncovr::prelude::*;
 /// use serde::Deserialize;
 ///
+/// // GET /users/:id
+/// #[derive(Clone)]
+/// struct GetUser;
+///
+/// #[async_trait]
+/// impl API for GetUser {
+///     type Req = ();
+///     type Res = String;
+///
+///     async fn handler(&self, ctx: Context<Self::Req>) -> Self::Res {
+///         // Access path parameters
+///         let id = ctx.path.get_u64("id").unwrap_or(0);
+///         format!("User {}", id)
+///     }
+/// }
+///
+/// // GET /users?page=1&limit=10
+/// #[derive(Clone)]
+/// struct ListUsers;
+///
+/// #[async_trait]
+/// impl API for ListUsers {
+///     type Req = ();
+///     type Res = String;
+///
+///     async fn handler(&self, ctx: Context<Self::Req>) -> Self::Res {
+///         // Access query parameters
+///         let page = ctx.query.get_u32("page").unwrap_or(1);
+///         let limit = ctx.query.get_u32("limit").unwrap_or(10);
+///         format!("Page {} with {} items", page, limit)
+///     }
+/// }
+///
+/// // POST /users/:id with JSON body
 /// #[derive(Deserialize, Default)]
-/// struct CreateUserRequest {
+/// struct UpdateUserBody {
 ///     name: String,
 ///     email: String,
 /// }
 ///
 /// #[derive(Clone)]
-/// struct CreateUserEndpoint;
+/// struct UpdateUser;
 ///
 /// #[async_trait]
-/// impl API for CreateUserEndpoint {
-///     type Req = CreateUserRequest;
+/// impl API for UpdateUser {
+///     type Req = UpdateUserBody;
 ///     type Res = String;
 ///
 ///     async fn handler(&self, ctx: Context<Self::Req>) -> Self::Res {
+///         // Access path parameter
+///         let id = ctx.path.get_u64("id").unwrap_or(0);
+///
 ///         // Access request body
 ///         let name = &ctx.req.name;
+///         let email = &ctx.req.email;
 ///
-///         // Access headers (zero-copy via Arc)
-///         let user_agent = ctx.headers
-///             .get("user-agent")
-///             .and_then(|v| v.to_str().ok())
-///             .unwrap_or("unknown");
-///
-///         format!("User {} from {}", name, user_agent)
+///         format!("Updated user {} with {} <{}>", id, name, email)
 ///     }
 /// }
 /// ```
 pub struct Context<Req = ()> {
-    /// The deserialized request body
+    /// The deserialized request body (from JSON for POST/PUT/PATCH)
     pub req: Req,
 
     /// HTTP request headers (zero-copy via Arc)
     pub headers: Arc<HeaderMap>,
+
+    /// Path parameters extracted from the URL (e.g., `:id` in `/users/:id`)
+    pub path: PathParams,
+
+    /// Query parameters from the URL query string (e.g., `?page=1&limit=10`)
+    pub query: QueryParams,
 }

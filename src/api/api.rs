@@ -105,6 +105,8 @@ mod tests {
                 message: "hello".into(),
             },
             headers: Arc::new(HeaderMap::new()),
+            path: crate::server::PathParams::empty(),
+            query: crate::server::QueryParams::empty(),
         };
 
         let response = endpoint.handler(ctx).await;
