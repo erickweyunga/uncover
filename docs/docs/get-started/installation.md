@@ -25,7 +25,7 @@ cd my-api
 Add Uncovr to your project `my-api`:
 
 ```bash
-cargo add uncovr@0.1.1 tokio --features full serde --features derive
+cargo add uncovr tokio serde --features derive
 ```
 
 ## Create Your First Endpoint

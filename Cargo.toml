@@ -15,7 +15,7 @@ rust-version = "1.85.0"
 exclude = ["examples/", "scripts/", ".github/", ".gitignore"]
 
 [workspace]
-members = [".", "examples/api"]
+members = [".", "examples/api", "examples/routes"]
 resolver = "2"
 
 [features]

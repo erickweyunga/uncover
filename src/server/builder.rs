@@ -7,8 +7,12 @@ use aide::axum::{
     ApiRouter,
     routing::{delete_with, get_with, patch_with, post_with, put_with},
 };
+use aide::openapi::{
+    Parameter, ParameterData, ParameterSchemaOrContent, QueryStyle, ReferenceOr, SchemaObject,
+};
 use axum::Extension;
 use axum::http::{HeaderValue, Method, Request, Response};
+use schemars::schema::{InstanceType, Schema, SchemaObject as SchemarsSchemaObject};
 use tower_http::cors::{AllowOrigin, Any, CorsLayer};
 use tower_http::trace::{MakeSpan, OnResponse, TraceLayer};
 
@@ -303,6 +307,33 @@ pub trait Metadata: API {
     fn metadata(&self) -> Endpoint;
 }
 
+/// Helper function to convert ParamInfo to aide's Parameter type for OpenAPI
+fn param_info_to_query_param(param: &ParamInfo) -> ReferenceOr<Parameter> {
+    ReferenceOr::Item(Parameter::Query {
+        parameter_data: ParameterData {
+            name: param.name.to_string(),
+            description: param.description.map(|s| s.to_string()),
+            required: param.required,
+            deprecated: None,
+            format: ParameterSchemaOrContent::Schema(SchemaObject {
+                json_schema: Schema::Object(SchemarsSchemaObject {
+                    instance_type: Some(InstanceType::String.into()),
+                    ..Default::default()
+                }),
+                external_docs: None,
+                example: None,
+            }),
+            example: None,
+            examples: Default::default(),
+            explode: None,
+            extensions: Default::default(),
+        },
+        allow_reserved: false,
+        style: QueryStyle::Form,
+        allow_empty_value: None,
+    })
+}
+
 impl ServerBuilder {
     /// Configure the server with an AppConfig
     pub fn with_config(mut self, config: AppConfig) -> Self {
@@ -371,7 +402,14 @@ impl ServerBuilder {
                             ep.handler(ctx).await
                         }
                     },
-                    |op| {
+                    |mut op| {
+                        // Add query parameters to OpenAPI spec
+                        for param in &meta.query_params {
+                            op.inner_mut()
+                                .parameters
+                                .push(param_info_to_query_param(param));
+                        }
+
                         op.summary(summary)
                             .description(summary)
                             .response::<200, E::Res>()
@@ -399,7 +437,14 @@ impl ServerBuilder {
                             ep.handler(ctx).await
                         }
                     },
-                    |op| {
+                    |mut op| {
+                        // Add query parameters to OpenAPI spec
+                        for param in &meta.query_params {
+                            op.inner_mut()
+                                .parameters
+                                .push(param_info_to_query_param(param));
+                        }
+
                         op.summary(summary)
                             .description(summary)
                             .response::<200, E::Res>()
@@ -427,7 +472,14 @@ impl ServerBuilder {
                             ep.handler(ctx).await
                         }
                     },
-                    |op| {
+                    |mut op| {
+                        // Add query parameters to OpenAPI spec
+                        for param in &meta.query_params {
+                            op.inner_mut()
+                                .parameters
+                                .push(param_info_to_query_param(param));
+                        }
+
                         op.summary(summary)
                             .description(summary)
                             .response::<200, E::Res>()
@@ -455,7 +507,14 @@ impl ServerBuilder {
                             ep.handler(ctx).await
                         }
                     },
-                    |op| {
+                    |mut op| {
+                        // Add query parameters to OpenAPI spec
+                        for param in &meta.query_params {
+                            op.inner_mut()
+                                .parameters
+                                .push(param_info_to_query_param(param));
+                        }
+
                         op.summary(summary)
                             .description(summary)
                             .response::<200, E::Res>()
@@ -483,7 +542,14 @@ impl ServerBuilder {
                             ep.handler(ctx).await
                         }
                     },
-                    |op| {
+                    |mut op| {
+                        // Add query parameters to OpenAPI spec
+                        for param in &meta.query_params {
+                            op.inner_mut()
+                                .parameters
+                                .push(param_info_to_query_param(param));
+                        }
+
                         op.summary(summary)
                             .description(summary)
                             .response::<200, E::Res>()
@@ -510,7 +576,14 @@ impl ServerBuilder {
                             ep.handler(ctx).await
                         }
                     },
-                    |op| {
+                    |mut op| {
+                        // Add query parameters to OpenAPI spec
+                        for param in &meta.query_params {
+                            op.inner_mut()
+                                .parameters
+                                .push(param_info_to_query_param(param));
+                        }
+
                         op.summary(summary)
                             .description(summary)
                             .response::<200, E::Res>()
