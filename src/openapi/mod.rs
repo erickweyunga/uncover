@@ -17,13 +17,13 @@
 //! use serde::{Deserialize, Serialize};
 //!
 //! #[derive(Default, Deserialize, JsonSchema)]
-//! struct CreateUser {
+//! pub struct CreateUser {
 //!     name: String,
 //!     email: String,
 //! }
 //!
 //! #[derive(Serialize, JsonSchema)]
-//! struct User {
+//! pub struct User {
 //!     id: u64,
 //!     name: String,
 //!     email: String,
@@ -33,8 +33,8 @@
 //! pub struct CreateUserEndpoint;
 //!
 //! impl Metadata for CreateUserEndpoint {
-//!     fn metadata(&self) -> EndpointMetadata {
-//!         EndpointMetadata::new("/users", "post")
+//!     fn metadata(&self) -> Endpoint {
+//!         Endpoint::new("/users", "post")
 //!             .summary("Create a new user")
 //!     }
 //! }
@@ -55,11 +55,13 @@
 //!
 //! #[tokio::main]
 //! async fn main() {
+//!     use uncover::server::Server;
+//!
 //!     let config = AppConfig::new("My API", "1.0.0")
 //!         .description("A simple API built with Uncover")
 //!         .docs(true);
 //!
-//!     uncover::server::Server::new()
+//!     Server::new()
 //!         .with_config(config)
 //!         .register(CreateUserEndpoint)
 //!         .serve()

@@ -4,18 +4,18 @@ use std::time::Duration;
 use tokio::net::TcpListener;
 
 use aide::axum::{
-    routing::{delete_with, get_with, patch_with, post_with, put_with},
     ApiRouter,
+    routing::{delete_with, get_with, patch_with, post_with, put_with},
 };
-use axum::http::{HeaderValue, Method, Request, Response};
 use axum::Extension;
+use axum::http::{HeaderValue, Method, Request, Response};
 use tower_http::cors::{AllowOrigin, Any, CorsLayer};
 use tower_http::trace::{MakeSpan, OnResponse, TraceLayer};
 
 use crate::api::api::API;
 use crate::config::{AppConfig, CorsConfig};
 use crate::context::Context;
-use crate::openapi::{serve_docs, serve_scalar_ui, OpenApiConfig};
+use crate::openapi::{OpenApiConfig, serve_docs, serve_scalar_ui};
 
 /// Custom request span maker that logs essential request information.
 ///
@@ -567,6 +567,7 @@ impl ServerBuilder {
     ///
     /// ```no_run
     /// use uncover::prelude::*;
+    /// use uncover::server::Server;
     ///
     /// # #[tokio::main]
     /// # async fn main() {

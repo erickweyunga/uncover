@@ -1,7 +1,6 @@
 //! Server module for Uncover framework.
 //!
-//! Provides a declarative API for building HTTP servers with Axum,
-//! integrating seamlessly with `#[resolve]` endpoints.
+//! Provides a modular API for building HTTP servers with type-safe endpoints.
 //!
 //! # Example
 //!
@@ -9,20 +8,32 @@
 //! use uncover::prelude::*;
 //! use uncover::server::Server;
 //!
-//! #[resolve(path = "/hello")]
+//! #[derive(Clone)]
 //! pub struct Hello;
 //!
-//! impl Hello {
-//!     async fn handler(&self) -> &'static str {
+//! impl Metadata for Hello {
+//!     fn metadata(&self) -> Endpoint {
+//!         Endpoint::new("/hello", "get")
+//!     }
+//! }
+//!
+//! #[async_trait]
+//! impl API for Hello {
+//!     type Req = ();
+//!     type Res = &'static str;
+//!
+//!     async fn handler(&self, _ctx: Context<Self::Req>) -> Self::Res {
 //!         "Hello, World!"
 //!     }
 //! }
 //!
 //! #[tokio::main]
 //! async fn main() {
+//!     let config = AppConfig::new("My API", "1.0.0");
+//!
 //!     Server::new()
-//!         .register(Hello, |endpoint| endpoint.handler())
-//!         .bind("0.0.0.0:3000")
+//!         .with_config(config)
+//!         .register(Hello)
 //!         .serve()
 //!         .await
 //!         .unwrap();

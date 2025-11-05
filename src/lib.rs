@@ -102,25 +102,37 @@
 //!
 //! ```rust
 //! use uncover::prelude::*;
+//! use serde::{Deserialize, Serialize};
 //!
 //! #[derive(Clone)]
 //! pub struct MyEndpoint;
 //!
+//! #[derive(Default, Deserialize, JsonSchema)]
+//! pub struct MyRequest {
+//!     name: String,
+//! }
+//!
+//! #[derive(Serialize, JsonSchema)]
+//! pub struct MyResponse {
+//!     message: String,
+//! }
+//!
 //! impl Metadata for MyEndpoint {
 //!     fn metadata(&self) -> Endpoint {
-//!         Endpoint::new("/path", "get")
+//!         Endpoint::new("/path", "post")
 //!             .summary("Endpoint description")
 //!     }
 //! }
 //!
 //! #[async_trait]
 //! impl API for MyEndpoint {
-//!     type Req = RequestType;
-//!     type Res = Json<ResponseType>;
+//!     type Req = MyRequest;
+//!     type Res = Json<MyResponse>;
 //!
 //!     async fn handler(&self, ctx: Context<Self::Req>) -> Self::Res {
-//!         // Your logic here
-//!         Json(response_data)
+//!         Json(MyResponse {
+//!             message: format!("Hello, {}!", ctx.req.name)
+//!         })
 //!     }
 //! }
 //! ```

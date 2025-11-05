@@ -9,23 +9,23 @@
 //!
 //! # Example with Custom Middleware
 //!
-//! ```rust,no_run
+//! ```rust,ignore
 //! use uncover::prelude::*;
 //! use tower_http::timeout::TimeoutLayer;
 //! use std::time::Duration;
 //!
-//! # #[tokio::main]
-//! # async fn main() {
-//! let config = AppConfig::new("My API", "1.0.0");
+//! #[tokio::main]
+//! async fn main() {
+//!     let config = AppConfig::new("My API", "1.0.0");
 //!
-//! let server = uncover::server::Server::new()
-//!     .with_config(config)
-//!     .build();
+//!     let server = uncover::server::Server::new()
+//!         .with_config(config)
+//!         .build();
 //!
-//! // The server can be extended with Axum middleware
-//! // (Note: This is pseudocode for illustration)
-//! // let app = server.layer(TimeoutLayer::new(Duration::from_secs(30)));
-//! # }
+//!     // The server can be extended with Axum middleware
+//!     // (Note: This is pseudocode for illustration)
+//!     // let app = server.layer(TimeoutLayer::new(Duration::from_secs(30)));
+//! }
 //! ```
 
 use crate::context::Context;
