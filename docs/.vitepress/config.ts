@@ -1,7 +1,12 @@
-import { defineConfig } from "vitepress";
+import { defineConfig, HeadConfig, resolveSiteDataByRoute } from "vitepress";
+import llmstxt from "vitepress-plugin-llms";
 
 export default defineConfig({
   srcDir: "docs",
+
+  lastUpdated: true,
+  cleanUrls: true,
+  metaChunk: true,
 
   title: "Uncovr",
   description:
@@ -63,4 +68,23 @@ export default defineConfig({
       },
     ],
   ],
+  vite: {
+    plugins: [
+      llmstxt({
+        workDir: "docs",
+        ignoreFiles: ["index.md"],
+      }),
+    ],
+  },
+  transformPageData: (pageData, ctx) => {
+    const site = resolveSiteDataByRoute(
+      ctx.siteConfig.site,
+      pageData.relativePath,
+    );
+    const title = `${pageData.title || site.title} | ${pageData.description || site.description}`;
+    ((pageData.frontmatter.head ??= []) as HeadConfig[]).push(
+      ["meta", { property: "og:locale", content: site.lang }],
+      ["meta", { property: "og:title", content: title }],
+    );
+  },
 });
