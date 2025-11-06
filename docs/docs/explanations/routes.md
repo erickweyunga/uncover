@@ -435,15 +435,4 @@ When you register routes, Uncovr compiles them into an optimized routing tree at
 
 Path and query parameters are extracted automatically before your handler runs. If extraction fails (wrong type, missing required parameter), Uncovr handles the error response for you.
 
-## Key Takeaways
 
-1. Routes connect HTTP requests to your handler code
-2. Use path parameters for resource identification
-3. Use query parameters for optional filters and options
-4. Use request body for data you're creating or updating
-5. HTTP methods indicate the operation type
-6. Follow RESTful conventions for intuitive APIs
-7. Organize routes by resource or feature as your application grows
-8. Document your parameters for clear, usable APIs
-
-Understanding these principles will help you design clean, intuitive APIs that are easy to use and maintain.
