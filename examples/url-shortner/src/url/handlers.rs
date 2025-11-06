@@ -43,7 +43,7 @@ impl API for RedirectUrlApi {
 
     async fn handler(&self, ctx: Context<Self::Req>) -> Self::Res {
         let id = ctx.path.get("id").unwrap_or_default();
-        let url = fun::get_original_url(&id);
+        let url = fun::get_original_url(id);
 
         match url {
             Some(url) => ApiResponse::MovedPermanently(url),
