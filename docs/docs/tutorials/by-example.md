@@ -53,17 +53,17 @@ use std::collections::HashMap;
 use std::sync::Mutex;
 
 // In-memory storage (use a database in production)
-static URL_MAP: Lazy<Mutex<HashMap<String, String>>> = 
+static URL_MAP: Lazy<Mutex<HashMap<String, String>>> =
     Lazy::new(|| Mutex::new(HashMap::new()));
 
 pub fn shorten_url(base_url: &str, original_url: &str) -> String {
     let short_code = nanoid::nanoid!(6);
-    
+
     URL_MAP
         .lock()
         .unwrap()
         .insert(short_code.clone(), original_url.to_string());
-    
+
     format!("{}/{}", base_url, short_code)
 }
 

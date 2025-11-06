@@ -29,10 +29,7 @@ export default defineConfig({
       },
       {
         text: "Tutorials",
-        items: [
-          { text: "Uncovr By Example", link: "/tutorials/by-example" },
-          { text: "API Dev Quickstart", link: "/tutorials/quickstart" },
-        ],
+        items: [{ text: "Uncovr By Example", link: "/tutorials/by-example" }],
       },
       {
         text: "Explanations",
