@@ -1,6 +1,6 @@
 use uncovr::{prelude::*, server::Server};
 
-use crate::url::apis::UrlApi;
+use crate::url::apis::{RedirectUrlApi, ShortenUrlApi};
 
 mod fun;
 mod url;
@@ -13,7 +13,8 @@ async fn main() {
 
     Server::new()
         .with_config(config)
-        .register(UrlApi)
+        .register(ShortenUrlApi)
+        .register(RedirectUrlApi)
         .serve()
         .await
         .expect("Something went wrong while starting Url Shortner Server")

@@ -3,4 +3,4 @@ pub mod api;
 pub mod response;
 
 pub use api::*;
-pub use response::{ApiResponse, ErrorDetails};
+pub use response::{ApiResponse, ErrorResponse};

@@ -221,6 +221,11 @@ pub struct ParamInfo {
     pub required: bool,
 }
 
+/// Response callback type for configuring OpenAPI responses
+pub type ResponseCallback = Box<
+    dyn FnOnce(aide::transform::TransformOperation) -> aide::transform::TransformOperation + Send,
+>;
+
 /// Endpoint metadata for API documentation
 pub struct Endpoint {
     /// The path for this endpoint (e.g., "/users", "/users/:id")
@@ -235,6 +240,8 @@ pub struct Endpoint {
     pub query_params: Vec<ParamInfo>,
     /// Path parameters for this endpoint
     pub path_params: Vec<ParamInfo>,
+    /// Optional response configuration callback
+    pub response_config: Option<ResponseCallback>,
 }
 
 impl Endpoint {
@@ -247,6 +254,7 @@ impl Endpoint {
             description: None,
             query_params: Vec::new(),
             path_params: Vec::new(),
+            response_config: None,
         }
     }
 
@@ -297,6 +305,30 @@ impl Endpoint {
         } else if let Some(param) = self.path_params.last_mut() {
             param.description = Some(description);
         }
+        self
+    }
+
+    /// Configure responses for this endpoint using a callback
+    ///
+    /// Provides direct access to aide's TransformOperation for maximum flexibility.
+    ///
+    /// # Example
+    /// ```rust
+    /// Endpoint::new("/users", "get")
+    ///     .summary("Get users")
+    ///     .with_responses(|op| {
+    ///         op.response::<200, Vec<User>>()
+    ///           .response::<400, ErrorResponse>()
+    ///           .response::<500, ErrorResponse>()
+    ///     })
+    /// ```
+    pub fn with_responses<F>(mut self, callback: F) -> Self
+    where
+        F: FnOnce(aide::transform::TransformOperation) -> aide::transform::TransformOperation
+            + Send
+            + 'static,
+    {
+        self.response_config = Some(Box::new(callback));
         self
     }
 }
@@ -377,6 +409,8 @@ impl ServerBuilder {
         let path = meta.path;
         let method = meta.method;
         let summary = meta.summary.unwrap_or("");
+        let description = meta.description;
+        let response_config = meta.response_config;
 
         let endpoint = Arc::new(endpoint);
 
@@ -408,9 +442,17 @@ impl ServerBuilder {
                                 .push(param_info_to_query_param(param));
                         }
 
-                        op.summary(summary)
-                            .description(summary)
-                            .response::<200, E::Res>()
+                        op = op.summary(summary);
+                        if let Some(desc) = description {
+                            op = op.description(desc);
+                        }
+
+                        // Apply response config callback if provided
+                        if let Some(callback) = response_config {
+                            op = callback(op);
+                        }
+
+                        op
                     },
                 )
             }
@@ -442,9 +484,17 @@ impl ServerBuilder {
                                 .push(param_info_to_query_param(param));
                         }
 
-                        op.summary(summary)
-                            .description(summary)
-                            .response::<200, E::Res>()
+                        op = op.summary(summary);
+                        if let Some(desc) = description {
+                            op = op.description(desc);
+                        }
+
+                        // Apply response config callback if provided
+                        if let Some(callback) = response_config {
+                            op = callback(op);
+                        }
+
+                        op
                     },
                 )
             }
@@ -476,9 +526,17 @@ impl ServerBuilder {
                                 .push(param_info_to_query_param(param));
                         }
 
-                        op.summary(summary)
-                            .description(summary)
-                            .response::<200, E::Res>()
+                        op = op.summary(summary);
+                        if let Some(desc) = description {
+                            op = op.description(desc);
+                        }
+
+                        // Apply response config callback if provided
+                        if let Some(callback) = response_config {
+                            op = callback(op);
+                        }
+
+                        op
                     },
                 )
             }
@@ -510,9 +568,17 @@ impl ServerBuilder {
                                 .push(param_info_to_query_param(param));
                         }
 
-                        op.summary(summary)
-                            .description(summary)
-                            .response::<200, E::Res>()
+                        op = op.summary(summary);
+                        if let Some(desc) = description {
+                            op = op.description(desc);
+                        }
+
+                        // Apply response config callback if provided
+                        if let Some(callback) = response_config {
+                            op = callback(op);
+                        }
+
+                        op
                     },
                 )
             }
@@ -544,9 +610,17 @@ impl ServerBuilder {
                                 .push(param_info_to_query_param(param));
                         }
 
-                        op.summary(summary)
-                            .description(summary)
-                            .response::<200, E::Res>()
+                        op = op.summary(summary);
+                        if let Some(desc) = description {
+                            op = op.description(desc);
+                        }
+
+                        // Apply response config callback if provided
+                        if let Some(callback) = response_config {
+                            op = callback(op);
+                        }
+
+                        op
                     },
                 )
             }
@@ -577,9 +651,17 @@ impl ServerBuilder {
                                 .push(param_info_to_query_param(param));
                         }
 
-                        op.summary(summary)
-                            .description(summary)
-                            .response::<200, E::Res>()
+                        op = op.summary(summary);
+                        if let Some(desc) = description {
+                            op = op.description(desc);
+                        }
+
+                        // Apply response config callback if provided
+                        if let Some(callback) = response_config {
+                            op = callback(op);
+                        }
+
+                        op
                     },
                 )
             }
