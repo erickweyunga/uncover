@@ -7,6 +7,35 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.1] - 2025-01-11
+
+### Added
+- **Middleware support via Extensions**: Added `extensions` field to `Context` struct for middleware data access
+  - Middleware can now inject data into requests that handlers can access via `ctx.extensions.get::<T>()`
+  - Created custom `ExtractExtensions` extractor compatible with aide/OpenAPI
+  - All HTTP method handlers (GET, POST, PUT, PATCH, DELETE) now extract and pass extensions
+- **Middleware modules**: Exported `axum_middleware` and `tower` modules for middleware utilities
+  - `axum_middleware` provides access to Axum's native middleware functions
+  - `tower` provides access to Tower's composable middleware layers
+  - Enables authentication, logging, rate limiting, and other cross-cutting concerns
+- **JWT Authentication Example**: Added comprehensive `auth-jwt` example demonstrating:
+  - User registration and login with JWT tokens
+  - Password hashing with bcrypt
+  - JWT token generation and validation
+  - Protected routes using authentication middleware
+  - Extensions-based user context passing
+  - SQLite database with migrations
+
+### Changed
+- **BREAKING**: Error messages now use `String` instead of `&'static str`
+  - Allows dynamic error messages with `format!()` macro
+  - Static messages require `.to_string()` conversion
+  - Example: `ApiResponse::BadRequest { code: "error", message: "Error message".to_string() }`
+  - Example with dynamic data: `message: format!("User {} not found", id)`
+
+### Removed
+- Removed obsolete `middleware` module (replaced by native Axum middleware via `axum_middleware`)
+
 ## [0.2.0] - 2025-01-08
 
 ### Added
