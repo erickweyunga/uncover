@@ -146,7 +146,6 @@
 //! - [`logging`] - Logging initialization and utilities
 //! - [`context`] - Request context types
 //! - [`openapi`] - OpenAPI documentation generation
-//! - [`middleware`] - Middleware utilities
 //! - [`http`] - HTTP types re-exported from Axum
 //! - [`extract`] - Extractors re-exported from Axum
 //! - [`response`] - Response types re-exported from Axum
@@ -209,11 +208,6 @@ pub mod context;
 /// Provides structured logging setup with support for development and production formats.
 pub mod logging;
 
-/// Middleware utilities and helpers.
-///
-/// Additional middleware components for the framework.
-pub mod middleware;
-
 /// OpenAPI documentation generation and serving.
 ///
 /// Automatic API documentation generation with Scalar UI integration.
@@ -258,14 +252,31 @@ pub mod response {
 pub mod axum_middleware {
     //! Middleware types re-exported from Axum.
     //!
-    //! Middleware allows you to intercept and modify requests and responses.
+    //! Use these to create custom middleware that can modify requests/responses
+    //! and inject data into request extensions.
+    //!
+    //! # Example
+    //!
+    //! ```rust,ignore
+    //! use uncovr::axum_middleware::from_fn;
+    //!
+    //! async fn my_middleware(req: Request, next: Next) -> Response {
+    //!     // Add data to extensions
+    //!     req.extensions_mut().insert(MyData::default());
+    //!     next.run(req).await
+    //! }
+    //!
+    //! // Apply middleware using .layer()
+    //! server.layer(from_fn(my_middleware))
+    //! ```
     pub use axum::middleware::*;
 }
 
 pub mod tower {
-    //! Middleware types re-exported from Axum.
+    //! Tower middleware and service utilities.
     //!
-    //! Middleware allows you to intercept and modify requests and responses.
+    //! Tower provides composable middleware layers for building robust services.
+    //! Use these to add functionality like timeouts, rate limiting, and more.
     pub use tower::*;
 }
 
