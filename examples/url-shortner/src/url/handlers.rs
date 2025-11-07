@@ -14,7 +14,7 @@ impl API for ShortenUrlApi {
         if ctx.req.url.is_empty() {
             return ApiResponse::BadRequest {
                 code: "empty_url",
-                message: "URL cannot be empty",
+                message: "URL cannot be empty".to_string(),
             };
         }
 
@@ -22,7 +22,7 @@ impl API for ShortenUrlApi {
         if !ctx.req.url.starts_with("http://") && !ctx.req.url.starts_with("https://") {
             return ApiResponse::BadRequest {
                 code: "invalid_url_format",
-                message: "URL must start with http:// or https://",
+                message: "URL must start with http:// or https://".to_string(),
             };
         }
 
@@ -49,7 +49,7 @@ impl API for RedirectUrlApi {
             Some(url) => ApiResponse::MovedPermanently(url),
             None => ApiResponse::NotFound {
                 code: "url_not_found",
-                message: "URL not found",
+                message: "URL not found".to_string(),
             },
         }
     }

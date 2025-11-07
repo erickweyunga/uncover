@@ -1,5 +1,6 @@
 import { defineConfig, HeadConfig, resolveSiteDataByRoute } from "vitepress";
 import llmstxt from "vitepress-plugin-llms";
+// import { copyOrDownloadAsMarkdownButtons } from "vitepress-plugin-llms";
 
 export default defineConfig({
   srcDir: "docs",
@@ -76,9 +77,19 @@ export default defineConfig({
     plugins: [
       llmstxt({
         workDir: "docs",
-        ignoreFiles: ["index.md"],
+        generateLLMsFullTxt: false,
+        ignoreFiles: ["public/*"],
+        title: "Uncovr",
+        experimental: {
+          depth: 2,
+        },
       }),
     ],
+  },
+  markdown: {
+    // config(md) {
+    //   md.use(copyOrDownloadAsMarkdownButtons);
+    // },
   },
   transformPageData: (pageData, ctx) => {
     const site = resolveSiteDataByRoute(
