@@ -7,6 +7,27 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.3] - 2025-11-08
+
+### Added
+- **`nest_service()` method**: Added support for nesting external Tower services
+  - Nest static file servers with `tower_http::services::ServeDir`
+  - Nest custom Tower services
+  - Combine multiple service types in one application
+- **Comprehensive nesting tests**: Added tests for nested routers and external services
+  - Test API versioning with nested routers
+  - Test feature-based nesting (users, posts)
+  - Test external service nesting
+- **Nested services documentation**: Added examples/nested-services/README.md
+  - Patterns for API versioning
+  - Feature-based organization
+  - Serving static files alongside APIs
+  - Protected route patterns
+
+### Enhanced
+- Verified existing `nest()` method works correctly for nesting Uncovr routers
+- All 20 tests passing with new nesting functionality
+
 ## [0.2.2] - 2025-11-08
 
 ### Added
