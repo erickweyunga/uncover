@@ -7,6 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.2.4] - 2025-11-08
+
+### Changed
+- Made `.layer()` method more flexible to accept Tower layers with different body types
+- Relaxed body type constraints to support middleware like `tower-livereload`
+
+### Added
+- Live reload example demonstrating `tower-livereload` integration with Tera templates
+
 ## [0.2.3] - 2025-11-08
 
 ### Added

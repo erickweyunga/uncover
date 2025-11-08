@@ -15,7 +15,6 @@ use axum::{Extension, async_trait, body::Body};
 use axum::{
     extract::FromRequestParts,
     http::{HeaderValue, Method, Request, Response, request::Parts},
-    response::Response as AxumResponse,
 };
 use http::Extensions;
 use schemars::schema::{InstanceType, Schema, SchemaObject as SchemarsSchemaObject};
@@ -915,10 +914,9 @@ impl ServerBuilder {
     pub fn layer<L>(mut self, layer: L) -> Self
     where
         L: tower::Layer<axum::routing::Route> + Clone + Send + Sync + 'static,
-        L::Service: Service<Request<Body>, Response = AxumResponse, Error = Infallible>
-            + Clone
-            + Send
-            + 'static,
+        L::Service: Service<Request<Body>> + Clone + Send + 'static,
+        <L::Service as Service<Request<Body>>>::Response: axum::response::IntoResponse,
+        <L::Service as Service<Request<Body>>>::Error: Into<Infallible> + std::error::Error,
         <L::Service as Service<Request<Body>>>::Future: Send + 'static,
     {
         self.router = self.router.layer(layer);
