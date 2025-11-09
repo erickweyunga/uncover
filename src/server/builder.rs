@@ -922,6 +922,76 @@ impl ServerBuilder {
         self.router = self.router.layer(layer);
         self
     }
+
+    /// Add a fallback handler for unmatched routes.
+    ///
+    /// This handler will be called when no route matches the incoming request.
+    /// It's useful for providing custom 404 pages or API error responses.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// use uncovr::server::Server;
+    /// use uncovr::prelude::*;
+    ///
+    /// async fn handle_404() -> (StatusCode, &'static str) {
+    ///     (StatusCode::NOT_FOUND, "Route not found")
+    /// }
+    ///
+    /// let server = Server::new()
+    ///     .with_config(AppConfig::new("My API", "1.0.0"))
+    ///     .fallback(handle_404)
+    ///     .build();
+    /// ```
+    pub fn fallback<H, T>(mut self, handler: H) -> Self
+    where
+        H: axum::handler::Handler<T, ()>,
+        T: 'static,
+    {
+        self.router = self.router.fallback(handler);
+        self
+    }
+
+    /// Add a fallback service for unmatched routes.
+    ///
+    /// This is similar to `fallback`, but accepts a Tower service instead of a handler.
+    /// This is useful for integrating external services or more complex fallback logic.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// use uncovr::server::Server;
+    /// use uncovr::prelude::*;
+    /// use tower::service_fn;
+    /// use axum::body::Body;
+    /// use axum::http::{Request, Response};
+    ///
+    /// async fn fallback_service(req: Request<Body>) -> Result<Response<Body>, std::convert::Infallible> {
+    ///     Ok(Response::builder()
+    ///         .status(404)
+    ///         .body(Body::from("Custom 404"))
+    ///         .unwrap())
+    /// }
+    ///
+    /// let server = Server::new()
+    ///     .with_config(AppConfig::new("My API", "1.0.0"))
+    ///     .fallback_service(service_fn(fallback_service))
+    ///     .build();
+    /// ```
+    pub fn fallback_service<S>(mut self, service: S) -> Self
+    where
+        S: tower::Service<
+                axum::http::Request<axum::body::Body>,
+                Response = axum::http::Response<axum::body::Body>,
+                Error = std::convert::Infallible,
+            > + Clone
+            + Send
+            + 'static,
+        S::Future: Send + 'static,
+    {
+        self.router = self.router.fallback_service(service);
+        self
+    }
 }
 
 #[cfg(test)]

@@ -179,6 +179,65 @@
 //! - [`response`] - Response types re-exported from Axum
 //! - [`routing`] - Routing utilities re-exported from Axum
 //!
+//! ## Fallback Routes
+//!
+//! Handle unmatched routes with custom fallback handlers:
+//!
+//! ```no_run
+//! use uncovr::prelude::*;
+//!
+//! async fn handle_404() -> (StatusCode, Json<ErrorResponse>) {
+//!     (
+//!         StatusCode::NOT_FOUND,
+//!         Json(ErrorResponse {
+//!             error: "Not Found".to_string(),
+//!             message: Some("The requested resource does not exist".to_string()),
+//!         })
+//!     )
+//! }
+//!
+//! #[tokio::main]
+//! async fn main() {
+//!     let config = AppConfig::new("My API", "1.0.0");
+//!
+//!     uncovr::server::Server::new()
+//!         .with_config(config)
+//!         .register(YourEndpoint)
+//!         .fallback(handle_404)
+//!         .serve()
+//!         .await
+//!         .expect("Server failed");
+//! }
+//! ```
+//!
+//! For more complex scenarios, use `fallback_service` to integrate Tower services:
+//!
+//! ```no_run
+//! use uncovr::prelude::*;
+//! use tower::service_fn;
+//! use axum::body::Body;
+//! use axum::http::{Request, Response};
+//!
+//! async fn custom_fallback(req: Request<Body>) -> Result<Response<Body>, std::convert::Infallible> {
+//!     Ok(Response::builder()
+//!         .status(404)
+//!         .body(Body::from("Custom 404 response"))
+//!         .unwrap())
+//! }
+//!
+//! #[tokio::main]
+//! async fn main() {
+//!     let config = AppConfig::new("My API", "1.0.0");
+//!
+//!     uncovr::server::Server::new()
+//!         .with_config(config)
+//!         .fallback_service(service_fn(custom_fallback))
+//!         .serve()
+//!         .await
+//!         .expect("Server failed");
+//! }
+//! ```
+//!
 //! ## Logging
 //!
 //! Uncovr includes built-in structured logging:
