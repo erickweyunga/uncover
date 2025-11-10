@@ -775,10 +775,33 @@ impl ServerBuilder {
         };
 
         if let Some(api) = self.openapi {
+            // Get custom docs paths from config or use defaults
+            let docs_path = self
+                .config
+                .as_ref()
+                .map(|c| c.docs_path.as_str())
+                .unwrap_or("/docs");
+            let openapi_json_path = self
+                .config
+                .as_ref()
+                .map(|c| c.openapi_json_path.as_str())
+                .unwrap_or("/openapi.json");
+
+            let openapi_path_for_ui = if let Some(stripped) = openapi_json_path.strip_prefix('/') {
+                format!("./{}", stripped)
+            } else {
+                format!("./{}", openapi_json_path)
+            };
+
+            let ui_handler = move || {
+                let path = openapi_path_for_ui.clone();
+                async move { serve_scalar_ui(path).await }
+            };
+
             // Add documentation routes
             let docs_router = ApiRouter::new()
-                .route("/openapi.json", get_with(serve_docs, |op| op))
-                .route("/docs", get_with(serve_scalar_ui, |op| op));
+                .route(openapi_json_path, get_with(serve_docs, |op| op))
+                .route(docs_path, get_with(ui_handler, |op| op));
 
             // Generate and set up the OpenAPI documentation
             let mut api = api.clone();
@@ -790,7 +813,6 @@ impl ServerBuilder {
             if let Some(trace) = trace_layer {
                 self.router = self.router.layer(trace);
             }
-            tracing::info!("Interactive Docs: http://{}/docs", self.address);
         } else {
             // Apply CORS even without OpenAPI
             self.router = self.router.layer(cors);

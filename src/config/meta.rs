@@ -333,6 +333,14 @@ pub struct AppConfig {
     #[serde(default = "default_true")]
     pub enable_docs: bool,
 
+    /// OpenAPI documentation UI path (default: "/docs")
+    #[serde(default = "default_docs_path")]
+    pub docs_path: String,
+
+    /// OpenAPI JSON specification path (default: "/openapi.json")
+    #[serde(default = "default_openapi_json_path")]
+    pub openapi_json_path: String,
+
     /// OpenAPI server URLs
     #[serde(default)]
     pub api_servers: Vec<ApiServer>,
@@ -377,6 +385,14 @@ fn default_connection_timeout() -> u64 {
     30
 }
 
+fn default_docs_path() -> String {
+    "/docs".to_string()
+}
+
+fn default_openapi_json_path() -> String {
+    "/openapi.json".to_string()
+}
+
 impl Default for AppConfig {
     fn default() -> Self {
         Self {
@@ -389,6 +405,8 @@ impl Default for AppConfig {
             logging: LoggingConfig::default(),
             env_vars: HashMap::new(),
             enable_docs: true,
+            docs_path: default_docs_path(),
+            openapi_json_path: default_openapi_json_path(),
             api_servers: vec![],
             enable_compression: true,
             max_connections: None,
@@ -460,6 +478,41 @@ impl AppConfig {
     /// Enable or disable documentation
     pub fn docs(mut self, enable: bool) -> Self {
         self.enable_docs = enable;
+        self
+    }
+
+    /// Set the path for the OpenAPI documentation UI.
+    ///
+    /// By default, the documentation UI is served at `/docs`.
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use uncovr::config::AppConfig;
+    ///
+    /// let config = AppConfig::new("My API", "1.0.0")
+    ///     .docs_path("/swagger");
+    /// ```
+    pub fn docs_path(mut self, path: impl Into<String>) -> Self {
+        self.docs_path = path.into();
+        self
+    }
+
+    /// Set the path for the OpenAPI JSON specification.
+    ///
+    /// By default, the OpenAPI spec is served at `/openapi.json`.
+    /// This should match what the docs UI expects (configured in docs.html).
+    ///
+    /// # Examples
+    ///
+    /// ```rust
+    /// use uncovr::config::AppConfig;
+    ///
+    /// let config = AppConfig::new("My API", "1.0.0")
+    ///     .openapi_json_path("/api-spec.json");
+    /// ```
+    pub fn openapi_json_path(mut self, path: impl Into<String>) -> Self {
+        self.openapi_json_path = path.into();
         self
     }
 

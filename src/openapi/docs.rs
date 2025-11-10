@@ -28,11 +28,10 @@ pub async fn serve_docs(Extension(api): Extension<OpenApi>) -> Response {
 /// Serves the Scalar UI for API documentation
 ///
 /// This handler is typically mounted at `/docs` and provides an interactive API documentation UI.
-pub async fn serve_scalar_ui() -> Response {
-    (
-        StatusCode::OK,
-        [(header::CONTENT_TYPE, "text/html")],
-        DOCS_HTML,
-    )
-        .into_response()
+/// The `openapi_json_path` parameter specifies the path to fetch the OpenAPI JSON spec.
+pub async fn serve_scalar_ui(openapi_json_path: String) -> Response {
+    // Replace the placeholder with the actual OpenAPI JSON path
+    let html = DOCS_HTML.replace("{{OPENAPI_JSON_PATH}}", &openapi_json_path);
+
+    (StatusCode::OK, [(header::CONTENT_TYPE, "text/html")], html).into_response()
 }
