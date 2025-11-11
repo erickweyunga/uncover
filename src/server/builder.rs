@@ -381,7 +381,7 @@ impl ServerBuilder {
     ///
     /// # Type Parameters
     ///
-    /// * `E` - The endpoint type that implements both [`Endpoint`] and [`Handler`]
+    /// * `E` - The endpoint type that implements both ['Endpoint'] and ['Handler']
     ///
     /// # Generic Bounds
     ///

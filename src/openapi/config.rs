@@ -3,7 +3,7 @@ use aide::openapi::{Info, OpenApi, Server as OpenApiServer};
 /// OpenAPI 3.0 specification configuration for automatic documentation generation.
 ///
 /// Configures metadata and server information for the generated OpenAPI specification.
-/// Used with [`ServerBuilder::with_openapi`] to enable interactive API documentation.
+// Used with ['ServerBuilder::with_openapi'] to enable interactive API documentation.
 ///
 /// # Example
 ///
