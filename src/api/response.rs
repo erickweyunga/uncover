@@ -346,8 +346,74 @@ impl aide::OperationOutput for Error {
     }
 }
 
-/// Legacy type alias for backward compatibility during migration
-///
-/// This will be removed in v0.4.0
-#[deprecated(since = "0.3.0", note = "Use `Error` instead")]
-pub type ErrorResponse = Error;
+// Automatic conversions from common error types
+
+/// Convert ParamError to Error (400 Bad Request)
+impl From<crate::server::params::ParamError> for Error {
+    fn from(err: crate::server::params::ParamError) -> Self {
+        Error::bad_request("invalid_parameter", err.to_string())
+    }
+}
+
+/// Convert serde_json::Error to Error (400 Bad Request for parsing errors)
+impl From<serde_json::Error> for Error {
+    fn from(err: serde_json::Error) -> Self {
+        Error::bad_request("json_parse_error", format!("Failed to parse JSON: {}", err))
+    }
+}
+
+/// Convert std::io::Error to Error (500 Internal Server Error)
+impl From<std::io::Error> for Error {
+    fn from(err: std::io::Error) -> Self {
+        tracing::error!("I/O error: {}", err);
+        Error::internal("io_error", "Internal server error")
+    }
+}
+
+/// Convert std::num::ParseIntError to Error (400 Bad Request)
+impl From<std::num::ParseIntError> for Error {
+    fn from(err: std::num::ParseIntError) -> Self {
+        Error::bad_request("parse_error", format!("Failed to parse number: {}", err))
+    }
+}
+
+/// Convert std::num::ParseFloatError to Error (400 Bad Request)
+impl From<std::num::ParseFloatError> for Error {
+    fn from(err: std::num::ParseFloatError) -> Self {
+        Error::bad_request("parse_error", format!("Failed to parse number: {}", err))
+    }
+}
+
+/// Convert std::str::ParseBoolError to Error (400 Bad Request)
+impl From<std::str::ParseBoolError> for Error {
+    fn from(err: std::str::ParseBoolError) -> Self {
+        Error::bad_request("parse_error", format!("Failed to parse boolean: {}", err))
+    }
+}
+
+#[cfg(feature = "validation")]
+/// Convert validator::ValidationErrors to Error (422 Unprocessable Entity)
+impl From<validator::ValidationErrors> for Error {
+    fn from(errors: validator::ValidationErrors) -> Self {
+        use std::collections::HashMap;
+
+        let mut field_errors = HashMap::new();
+
+        for (field, errors) in errors.field_errors() {
+            let messages: Vec<String> = errors
+                .iter()
+                .filter_map(|e| e.message.as_ref().map(|m| m.to_string()))
+                .collect();
+
+            if !messages.is_empty() {
+                field_errors.insert(field.to_string(), messages);
+            }
+        }
+
+        Error::unprocessable_with_details(
+            "validation_failed",
+            "Request validation failed",
+            field_errors,
+        )
+    }
+}

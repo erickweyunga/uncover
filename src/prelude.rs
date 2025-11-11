@@ -41,3 +41,7 @@ pub use serde::{Deserialize, Serialize};
 // Re-export OpenAPI config
 pub use crate::openapi::OpenApiConfig;
 pub use aide::axum::IntoApiResponse;
+
+// Re-export validator if validation feature is enabled
+#[cfg(feature = "validation")]
+pub use validator::{Validate, ValidationError, ValidationErrors};
