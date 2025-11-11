@@ -86,9 +86,7 @@ async fn main() {
 ## More Examples
 
 - [Hello World](https://github.com/erickweyunga/uncovr/tree/main/examples/hello-world)
-- [JSON API with CRUD](https://github.com/erickweyunga/uncovr/tree/main/examples/api)
-- [Path & Query Parameters](https://github.com/erickweyunga/uncovr/tree/main/examples/routes)
-- [Authentication with JWT](https://github.com/erickweyunga/uncovr/tree/main/examples/auth-jwt)
+
 - [URL Shortener](https://github.com/erickweyunga/uncovr/tree/main/examples/url-shortner)
 
 You may consider checking out [the examples directory](https://github.com/erickweyunga/uncovr/tree/main/examples) for more examples.
