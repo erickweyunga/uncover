@@ -1,0 +1,9 @@
+[package]
+name = "simple"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+uncovr = { path = "../.." }
+tokio = { version = "1.35", features = ["rt-multi-thread", "macros"] }
+serde = { version = "1.0", features = ["derive"] }

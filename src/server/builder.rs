@@ -46,46 +46,26 @@ where
     }
 }
 
-/// Custom request span maker that logs essential request information.
-///
-/// Creates a tracing span for each HTTP request with:
-/// - HTTP method (GET, POST, etc.)
-/// - Request URI path
-/// - User agent string
-///
-/// This provides clean, readable logs without exposing all headers.
+/// Custom request span maker for cleaner logs
 #[derive(Clone)]
 struct RequestSpanMaker;
 
 impl<B> MakeSpan<B> for RequestSpanMaker {
     fn make_span(&mut self, request: &Request<B>) -> tracing::Span {
-        let method = request.method();
-        let uri = request.uri().path();
-        let user_agent = request
-            .headers()
-            .get("user-agent")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("-");
-
         tracing::info_span!(
-            "request",
-            method = %method,
-            uri = %uri,
-            user_agent = %user_agent,
+            "http",
+            method = %request.method(),
+            path = %request.uri().path(),
         )
     }
 }
 
-/// Custom response logger that logs request completion with appropriate severity.
-///
-/// Logs HTTP request completion with:
-/// - Status code
-/// - Latency in milliseconds
+/// Custom response logger with minimal output.
 ///
 /// Log levels based on response status:
 /// - 5xx errors: ERROR level
 /// - 4xx errors: WARN level
-/// - 2xx/3xx success: INFO level
+/// - 2xx/3xx success: DEBUG level (not INFO to reduce noise)
 #[derive(Clone)]
 struct RequestLogger;
 
@@ -94,29 +74,24 @@ impl<B> OnResponse<B> for RequestLogger {
         self,
         response: &Response<B>,
         latency: std::time::Duration,
-        _span: &tracing::Span,
+        span: &tracing::Span,
     ) {
         let status = response.status();
-        let latency_ms = latency.as_millis();
+
+        // Format latency with appropriate unit
+        let latency_str = if latency.as_millis() > 0 {
+            format!("{}ms", latency.as_millis())
+        } else {
+            format!("{}µs", latency.as_micros())
+        };
 
         if status.is_server_error() {
-            tracing::error!(
-                status = %status,
-                latency_ms = %latency_ms,
-                "Request failed"
-            );
+            tracing::error!(parent: span, status = status.as_u16(), latency = %latency_str);
         } else if status.is_client_error() {
-            tracing::warn!(
-                status = %status,
-                latency_ms = %latency_ms,
-                "Request error"
-            );
+            tracing::warn!(parent: span, status = status.as_u16(), latency = %latency_str);
         } else {
-            tracing::info!(
-                status = %status,
-                latency_ms = %latency_ms,
-                "Request completed"
-            );
+            // Log successful requests at DEBUG level to reduce verbosity
+            tracing::debug!(parent: span, status = status.as_u16(), latency = %latency_str);
         }
     }
 }
@@ -810,9 +785,11 @@ impl ServerBuilder {
             .map(|c| c.log_requests)
             .unwrap_or(false)
         {
+            use tower_http::trace::DefaultOnRequest;
             Some(
                 TraceLayer::new_for_http()
                     .make_span_with(RequestSpanMaker)
+                    .on_request(DefaultOnRequest::new().level(tracing::Level::TRACE))
                     .on_response(RequestLogger),
             )
         } else {

@@ -157,27 +157,3 @@ where
         })
     }
 }
-
-/// Create a token validator from a list of valid tokens
-///
-/// # Example
-///
-/// ```rust
-/// use uncovr::middleware::auth::token_validator;
-///
-/// let validator = token_validator(vec![
-///     "token1".to_string(),
-///     "token2".to_string(),
-/// ]);
-/// ```
-pub fn token_validator(
-    valid_tokens: Vec<String>,
-) -> impl Fn(String) -> std::future::Ready<Result<(), String>> + Clone {
-    move |token: String| {
-        if valid_tokens.contains(&token) {
-            std::future::ready(Ok(()))
-        } else {
-            std::future::ready(Err("Invalid token".to_string()))
-        }
-    }
-}

@@ -71,6 +71,7 @@ pub fn init(config: &Logging) {
                         .with_thread_ids(false)
                         .with_file(false)
                         .with_line_number(false)
+                        .without_time()
                         .compact(),
                 )
                 .try_init();
