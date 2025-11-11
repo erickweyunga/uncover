@@ -1,4 +1,4 @@
-//! Endpoint definition module for Uncovr framework.
+//! Endpoint definition module for Uncovr.
 //!
 //! This module provides a clean separation between route definition and metadata (documentation).
 //!

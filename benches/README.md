@@ -1,6 +1,6 @@
-# Uncovr Framework Benchmarks
+# Uncovr Benchmarks
 
-This directory contains benchmarks for the Uncovr web framework, measuring performance across various common API scenarios.
+This directory contains benchmarks for Uncovr, measuring performance across various common API scenarios.
 
 ## Prerequisites
 

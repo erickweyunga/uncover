@@ -1,4 +1,4 @@
-//! Logging initialization and utilities for Uncovr framework.
+//! Logging initialization and utilities for Uncovr.
 //!
 //! This module provides logging setup based on configuration, with support for
 //! both pretty-printed development logs and structured JSON logs for production.

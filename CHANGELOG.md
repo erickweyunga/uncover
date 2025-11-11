@@ -219,4 +219,4 @@ To upgrade from 0.1.x to 0.2.0:
 ## [0.1.0] - 2025-11-04
 
 ### Initial Release
-- First working version of Uncovr framework
+- First working version of Uncovr

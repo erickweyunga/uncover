@@ -1,4 +1,4 @@
-//! Server module for Uncovr framework.
+//! Server module for Uncovr.
 //!
 //! Provides a modular API for building HTTP servers with type-safe endpoints.
 //!

@@ -1,8 +1,8 @@
-//! Framework benchmarks for Uncovr
+//! Benchmarks for Uncovr
 //!
-//! This benchmark suite tests the performance characteristics of the Uncovr framework
+//! This benchmark suite tests the performance characteristics of Uncovr
 //! across different scenarios. Each benchmark is focused on a specific aspect of
-//! framework performance.
+//! performance.
 //!
 //! ## Benchmarks
 //!
@@ -227,7 +227,7 @@ impl Handler for DeepRoute {
 // =============================================================================
 
 fn main() {
-    println!("Uncovr Framework Benchmarks\n");
+    println!("Uncovr Benchmarks\n");
     println!("Running performance tests with rewrk...\n");
 
     if on_ci() {
