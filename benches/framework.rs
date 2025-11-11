@@ -21,7 +21,6 @@
 use serde::{Deserialize, Serialize};
 use std::process::{Command, Stdio};
 use uncovr::prelude::*;
-use uncovr::server::endpoint::{Docs, Endpoint, Route};
 
 // =============================================================================
 // Benchmark 1: Minimal Overhead (Ping)
@@ -31,21 +30,21 @@ use uncovr::server::endpoint::{Docs, Endpoint, Route};
 struct Ping;
 
 impl Endpoint for Ping {
-    fn ep(&self) -> Route {
-        Route::GET("/ping")
+    fn route(&self) -> Route {
+        Route::get("/ping")
     }
 
-    fn docs(&self) -> Option<Docs> {
-        Some(Docs::new().summary("Minimal overhead ping endpoint"))
+    fn meta(&self) -> Meta {
+        Meta::new().summary("Minimal overhead ping endpoint")
     }
 }
 
 #[async_trait]
-impl API for Ping {
-    type Req = ();
-    type Res = &'static str;
+impl Handler for Ping {
+    type Request = ();
+    type Response = &'static str;
 
-    async fn handler(&self, _ctx: Context<Self::Req>) -> Self::Res {
+    async fn handle(&self, _ctx: Context<Self::Request>) -> Self::Response {
         "pong"
     }
 }
@@ -64,21 +63,21 @@ struct SimpleResponse {
 }
 
 impl Endpoint for SimpleJson {
-    fn ep(&self) -> Route {
-        Route::GET("/api/simple")
+    fn route(&self) -> Route {
+        Route::get("/api/simple")
     }
 
-    fn docs(&self) -> Option<Docs> {
-        Some(Docs::new().summary("Simple JSON serialization"))
+    fn meta(&self) -> Meta {
+        Meta::new().summary("Simple JSON serialization")
     }
 }
 
 #[async_trait]
-impl API for SimpleJson {
-    type Req = ();
-    type Res = Json<SimpleResponse>;
+impl Handler for SimpleJson {
+    type Request = ();
+    type Response = Json<SimpleResponse>;
 
-    async fn handler(&self, _ctx: Context<Self::Req>) -> Self::Res {
+    async fn handle(&self, _ctx: Context<Self::Request>) -> Self::Response {
         Json(SimpleResponse {
             message: "Hello, World!".to_string(),
             timestamp: 1234567890,
@@ -121,21 +120,21 @@ struct Metadata {
 }
 
 impl Endpoint for ComplexJson {
-    fn ep(&self) -> Route {
-        Route::POST("/api/complex")
+    fn route(&self) -> Route {
+        Route::post("/api/complex")
     }
 
-    fn docs(&self) -> Option<Docs> {
-        Some(Docs::new().summary("Complex nested JSON handling"))
+    fn meta(&self) -> Meta {
+        Meta::new().summary("Complex nested JSON handling")
     }
 }
 
 #[async_trait]
-impl API for ComplexJson {
-    type Req = ComplexRequest;
-    type Res = Json<ComplexResponse>;
+impl Handler for ComplexJson {
+    type Request = ComplexRequest;
+    type Response = Json<ComplexResponse>;
 
-    async fn handler(&self, ctx: Context<Self::Req>) -> Self::Res {
+    async fn handle(&self, ctx: Context<Self::Request>) -> Self::Response {
         Json(ComplexResponse {
             id: 42,
             name: ctx.req.name,
@@ -173,21 +172,21 @@ struct LargeResponse {
 }
 
 impl Endpoint for LargePayload {
-    fn ep(&self) -> Route {
-        Route::POST("/api/large")
+    fn route(&self) -> Route {
+        Route::post("/api/large")
     }
 
-    fn docs(&self) -> Option<Docs> {
-        Some(Docs::new().summary("Large payload handling (1KB)"))
+    fn meta(&self) -> Meta {
+        Meta::new().summary("Large payload handling (1KB)")
     }
 }
 
 #[async_trait]
-impl API for LargePayload {
-    type Req = LargeRequest;
-    type Res = Json<LargeResponse>;
+impl Handler for LargePayload {
+    type Request = LargeRequest;
+    type Response = Json<LargeResponse>;
 
-    async fn handler(&self, ctx: Context<Self::Req>) -> Self::Res {
+    async fn handle(&self, ctx: Context<Self::Request>) -> Self::Response {
         let size = ctx.req.data.len();
         Json(LargeResponse {
             size,
@@ -204,21 +203,21 @@ impl API for LargePayload {
 struct DeepRoute;
 
 impl Endpoint for DeepRoute {
-    fn ep(&self) -> Route {
-        Route::GET("/api/v1/users/123/posts/456/comments/789")
+    fn route(&self) -> Route {
+        Route::get("/api/v1/users/123/posts/456/comments/789")
     }
 
-    fn docs(&self) -> Option<Docs> {
-        Some(Docs::new().summary("Deep nested route matching"))
+    fn meta(&self) -> Meta {
+        Meta::new().summary("Deep nested route matching")
     }
 }
 
 #[async_trait]
-impl API for DeepRoute {
-    type Req = ();
-    type Res = &'static str;
+impl Handler for DeepRoute {
+    type Request = ();
+    type Response = &'static str;
 
-    async fn handler(&self, _ctx: Context<Self::Req>) -> Self::Res {
+    async fn handle(&self, _ctx: Context<Self::Request>) -> Self::Response {
         "success"
     }
 }
@@ -242,9 +241,7 @@ fn main() {
     std::thread::spawn(|| {
         let rt = tokio::runtime::Runtime::new().unwrap();
         rt.block_on(async {
-            let config = AppConfig::new("Benchmark Server", "1.0.0")
-                .bind("127.0.0.1:3030")
-                .logging(LoggingConfig::disabled());
+            let config = App::new("Benchmark Server", "1.0.0", "127.0.0.1:3030");
 
             uncovr::server::Server::new()
                 .with_config(config)
