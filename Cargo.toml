@@ -29,6 +29,7 @@ default = ["cors", "logging"]
 cors = ["tower-http/cors"]
 logging = ["tower-http/trace"]
 validation = ["dep:validator"]
+testing = ["dep:bytes"]
 
 [dependencies]
 async-trait = "0.1.77"
@@ -37,6 +38,8 @@ tokio = { version = "1.35", features = ["rt-multi-thread", "net", "macros", "tim
 # Core dependencies
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
+uuid = { version = "1.6", features = ["v4"] }
+futures = "0.3"
 
 # Logging dependencies
 tracing = "0.1"
@@ -62,6 +65,9 @@ schemars = { version = "0.8.16", features = ["derive"] }
 
 # Validation (optional)
 validator = { version = "0.18", features = ["derive"], optional = true }
+
+# Testing utilities (optional)
+bytes = { version = "1.5", optional = true }
 
 [dev-dependencies]
 pretty_env_logger = "0.5.0"

@@ -1045,6 +1045,40 @@ impl ServerBuilder {
         self.router = self.router.fallback_service(service);
         self
     }
+
+    /// Add middleware using a simpler function-based API
+    ///
+    /// This is a convenience wrapper around `.layer(from_fn(...))` for easier middleware composition.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// use uncovr::server::Server;
+    /// use uncovr::prelude::*;
+    /// use axum::middleware::Next;
+    ///
+    /// async fn my_middleware(req: Request<Body>, next: Next) -> Response {
+    ///     // Middleware logic
+    ///     next.run(req).await
+    /// }
+    ///
+    /// let server = Server::new()
+    ///     .middleware(my_middleware)
+    ///     .build();
+    /// ```
+    pub fn middleware<F>(self, middleware: F) -> Self
+    where
+        F: Fn(
+                Request<Body>,
+                axum::middleware::Next,
+            ) -> futures::future::BoxFuture<'static, Response<Body>>
+            + Clone
+            + Send
+            + Sync
+            + 'static,
+    {
+        self.layer(axum::middleware::from_fn(middleware))
+    }
 }
 
 #[cfg(test)]

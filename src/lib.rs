@@ -278,6 +278,13 @@ pub mod logging;
 pub mod openapi;
 pub mod server;
 
+/// Testing utilities for integration tests
+#[cfg(feature = "testing")]
+pub mod testing;
+
+/// Built-in middleware collection
+pub mod middleware;
+
 /// HTTP types re-exported from Axum
 pub mod http {
     pub use axum::http::*;

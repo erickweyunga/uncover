@@ -159,6 +159,48 @@ impl<Req> Context<Req> {
     pub fn try_state<S: Clone + Send + Sync + 'static>(&self) -> Option<S> {
         self.extensions.get::<S>().cloned()
     }
+
+    /// Consume the context and return the request body.
+    ///
+    /// This allows you to move the request body out of the context,
+    /// avoiding unnecessary clones when you don't need the context anymore.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// async fn handle(&self, ctx: Context<Self::Request>) -> Self::Response {
+    ///     let req = ctx.into_req(); // No clone needed!
+    ///
+    ///     Json(User {
+    ///         name: req.name,    // Move instead of clone
+    ///         email: req.email,  // Move instead of clone
+    ///     })
+    /// }
+    /// ```
+    pub fn into_req(self) -> Req {
+        self.req
+    }
+
+    /// Destructure the context into its components.
+    ///
+    /// This is useful when you need both the request body and other parts of the context.
+    ///
+    /// # Example
+    ///
+    /// ```rust,ignore
+    /// async fn handle(&self, ctx: Context<Self::Request>) -> Self::Response {
+    ///     let (req, path, query, extensions) = ctx.into_parts();
+    ///
+    ///     let id = path.parse::<i64>("id")?;
+    ///     let state = extensions.get::<AppState>().unwrap();
+    ///
+    ///     // Use req without cloning
+    ///     create_user(state, req).await
+    /// }
+    /// ```
+    pub fn into_parts(self) -> (Req, Path, Query, Extensions) {
+        (self.req, self.path, self.query, self.extensions)
+    }
 }
 
 #[cfg(test)]

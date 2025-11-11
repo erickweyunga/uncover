@@ -78,16 +78,6 @@ pub trait Handler {
         Self: Send + Sync;
 }
 
-/// Legacy type alias for backward compatibility during migration
-#[deprecated(since = "0.3.0", note = "Use `Handler` instead")]
-pub trait API: Handler {
-    type Req;
-    type Res;
-    async fn handler(&self, ctx: Context<Self::Req>) -> Self::Res
-    where
-        Self: Send + Sync;
-}
-
 #[cfg(test)]
 mod tests {
     use super::*;
