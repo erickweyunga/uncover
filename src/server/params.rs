@@ -261,7 +261,7 @@ mod tests {
         let params = Path::new(map);
 
         assert_eq!(params.parse::<i64>("id").unwrap(), 42);
-        assert_eq!(params.parse::<bool>("active").unwrap(), true);
+        assert!(params.parse::<bool>("active").unwrap());
         assert!(params.parse::<i64>("missing").is_err());
     }
 

@@ -102,13 +102,8 @@ where
             .map(|s| s.to_string());
 
         // Extract Bearer token
-        let token = auth_header.and_then(|header| {
-            if header.starts_with("Bearer ") {
-                Some(header[7..].to_string())
-            } else {
-                None
-            }
-        });
+        let token =
+            auth_header.and_then(|header| header.strip_prefix("Bearer ").map(|s| s.to_string()));
 
         let Some(token) = token else {
             // No token provided

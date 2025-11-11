@@ -69,7 +69,7 @@ impl RateLimit {
         let cutoff = now - self.window;
 
         // Get or create request history for this key
-        let requests = store.requests.entry(key).or_insert_with(Vec::new);
+        let requests = store.requests.entry(key).or_default();
 
         // Remove old requests outside the window
         requests.retain(|&time| time > cutoff);

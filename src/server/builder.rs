@@ -901,8 +901,6 @@ impl ServerBuilder {
         }
     }
 
-    /// Build a CORS layer from configuration
-
     /// Build and start serving the application.
     ///
     /// This is a convenience method that combines `build()` and `serve()` into a single call.

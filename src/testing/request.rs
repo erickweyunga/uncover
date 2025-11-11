@@ -72,8 +72,11 @@ impl RequestBuilder {
     /// ```
     pub fn header(mut self, key: &str, value: &str) -> Self {
         self.headers.insert(
-            key.parse().expect("Invalid header name"),
-            value.parse().expect("Invalid header value"),
+            key.parse::<http::HeaderName>()
+                .expect("Invalid header name"),
+            value
+                .parse::<http::HeaderValue>()
+                .expect("Invalid header value"),
         );
         self
     }
