@@ -382,7 +382,6 @@ impl From<std::str::ParseBoolError> for Error {
     }
 }
 
-#[cfg(feature = "validation")]
 impl From<validator::ValidationErrors> for Error {
     fn from(errors: validator::ValidationErrors) -> Self {
         use std::collections::HashMap;

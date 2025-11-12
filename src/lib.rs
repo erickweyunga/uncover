@@ -319,21 +319,23 @@ pub mod tower {
 /// Re-exports for derive macros and traits used in public API.
 ///
 /// **Important**: Due to how Rust derive macros work, you must still add
-/// `schemars = "0.8"` and `serde = "1"` to your Cargo.toml even though
-/// we re-export them here. The derive macro expansions reference these
-/// crates directly.
+/// `schemars = "0.8"`, `serde = "1"`, and `validator = "0.18"` to your
+/// Cargo.toml even though we re-export them here. The derive macro
+/// expansions reference these crates directly.
 ///
 /// # Required in your Cargo.toml
 ///
 /// ```toml
 /// [dependencies]
 /// uncovr = "0.2"
-/// schemars = "0.8"  # Required for #[derive(JsonSchema)]
-/// serde = "1"       # Required for #[derive(Serialize, Deserialize)]
+/// schemars = "0.8"   # Required for #[derive(JsonSchema)]
+/// serde = "1"        # Required for #[derive(Serialize, Deserialize)]
+/// validator = "0.18" # Required for #[derive(Validate)]
 /// ```
 pub use async_trait;
 pub use schemars;
 pub use serde;
+pub use validator;
 
 #[cfg(test)]
 mod tests {

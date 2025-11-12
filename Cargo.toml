@@ -25,7 +25,7 @@ members = [".", "examples/hello-world", "examples/auth-example"]
 resolver = "2"
 
 [features]
-default = ["cors", "logging"]
+default = ["cors", "logging", "validation"]
 cors = ["tower-http/cors"]
 logging = ["tower-http/trace"]
 validation = ["dep:validator"]

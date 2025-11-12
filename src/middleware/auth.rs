@@ -109,7 +109,7 @@ where
             // No token provided
             let response = (
                 StatusCode::UNAUTHORIZED,
-                "Missing or invalid Authorization header. Expected: Bearer <token>",
+                "Missing or invalid Authorization header.",
             )
                 .into_response();
 

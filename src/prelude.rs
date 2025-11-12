@@ -20,5 +20,4 @@ pub use axum::http::{HeaderMap, StatusCode};
 pub use axum::response::IntoResponse;
 
 // Validation
-#[cfg(feature = "validation")]
 pub use validator::{Validate, ValidationError, ValidationErrors};
