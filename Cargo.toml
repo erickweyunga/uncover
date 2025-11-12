@@ -51,7 +51,9 @@ bytes = { version = "1", optional = true }
 # Core dependencies
 futures = "0.3"
 http = "1"
+# Public dependency: Users need this for JsonSchema derive macro
 schemars = { version = "0.8", features = ["derive"] }
+# Public dependency: Users need this for Serialize/Deserialize derive macros
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 tokio = { version = "1", features = ["rt-multi-thread", "net", "macros", "time"] }

@@ -316,8 +316,12 @@ pub mod tower {
     pub use tower::*;
 }
 
-/// Re-exports for traits used in public API
+/// Re-exports for derive macros and traits used in public API
+///
+/// These crates are re-exported so users can access them through uncovr.
+/// Users don't need to add these to their Cargo.toml separately.
 pub use async_trait;
+pub use schemars;
 pub use serde;
 
 #[cfg(test)]
