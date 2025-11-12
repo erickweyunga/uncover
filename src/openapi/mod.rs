@@ -81,8 +81,16 @@ pub use docs::{serve_docs, serve_scalar_ui};
 
 /// Re-export of JsonSchema trait for deriving OpenAPI schemas.
 ///
-/// Users should derive this on request and response types.
-/// Access via `uncovr::openapi::JsonSchema` or `uncovr::schemars::JsonSchema`.
+/// **Important**: You must add `schemars = "0.8"` to your Cargo.toml dependencies
+/// for the derive macro to work, even though we re-export the trait.
+///
+/// # Setup
+///
+/// Add to your `Cargo.toml`:
+/// ```toml
+/// [dependencies]
+/// schemars = "0.8"
+/// ```
 ///
 /// # Example
 ///
@@ -90,7 +98,7 @@ pub use docs::{serve_docs, serve_scalar_ui};
 /// use uncovr::openapi::JsonSchema;
 /// use serde::{Deserialize, Serialize};
 ///
-/// #[derive(Deserialize, JsonSchema)]
+/// #[derive(Deserialize, Serialize, JsonSchema)]
 /// pub struct CreateUserRequest {
 ///     pub name: String,
 /// }

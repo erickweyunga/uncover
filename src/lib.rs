@@ -316,10 +316,21 @@ pub mod tower {
     pub use tower::*;
 }
 
-/// Re-exports for derive macros and traits used in public API
+/// Re-exports for derive macros and traits used in public API.
 ///
-/// These crates are re-exported so users can access them through uncovr.
-/// Users don't need to add these to their Cargo.toml separately.
+/// **Important**: Due to how Rust derive macros work, you must still add
+/// `schemars = "0.8"` and `serde = "1"` to your Cargo.toml even though
+/// we re-export them here. The derive macro expansions reference these
+/// crates directly.
+///
+/// # Required in your Cargo.toml
+///
+/// ```toml
+/// [dependencies]
+/// uncovr = "0.2"
+/// schemars = "0.8"  # Required for #[derive(JsonSchema)]
+/// serde = "1"       # Required for #[derive(Serialize, Deserialize)]
+/// ```
 pub use async_trait;
 pub use schemars;
 pub use serde;
