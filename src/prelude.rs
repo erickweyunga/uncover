@@ -8,11 +8,11 @@ pub use crate::api::response::{Error, Response};
 pub use crate::config::{App, LogFormat, LogLevel, Logging};
 pub use crate::context::Context;
 pub use crate::server::params::{Path, Query};
-pub use crate::server::{Endpoint, HttpMethod, Meta, Route};
+pub use crate::server::{ApiKeyLocation, Endpoint, HttpMethod, Meta, Route, SecurityScheme};
 
 // Core traits
+pub use crate::openapi::JsonSchema;
 pub use async_trait::async_trait;
-pub use schemars::JsonSchema;
 pub use serde::{Deserialize, Serialize};
 
 // Axum types

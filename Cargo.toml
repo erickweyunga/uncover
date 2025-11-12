@@ -21,7 +21,7 @@ exclude = [
 ]
 
 [workspace]
-members = [".", "examples/hello-world"]
+members = [".", "examples/hello-world", "examples/auth-example"]
 resolver = "2"
 
 [features]

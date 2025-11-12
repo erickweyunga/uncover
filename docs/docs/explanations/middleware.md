@@ -584,3 +584,171 @@ async fn handler(&self, ctx: Context<Self::Req>) -> Self::Res {
 ```
 
 This pattern - middleware injecting data that handlers extract from extensions - is the foundation for building secure, maintainable APIs with Uncovr.
+
+## Security Documentation
+
+Uncovr supports OpenAPI security scheme documentation via endpoint metadata. This ensures API documentation accurately reflects authentication requirements.
+
+### Basic Usage
+
+Mark endpoints requiring authentication using `auth_required()`:
+
+```rust
+impl Endpoint for GetProfile {
+    fn route(&self) -> Route {
+        Route::get("/profile")
+    }
+
+    fn meta(&self) -> Meta {
+        Meta::new()
+            .summary("Get user profile")
+            .auth_required()
+    }
+}
+```
+
+### Security Schemes
+
+Specify authentication methods explicitly:
+
+```rust
+use uncovr::prelude::*;
+
+// Bearer token authentication
+impl Endpoint for ProtectedEndpoint {
+    fn meta(&self) -> Meta {
+        Meta::new()
+            .security(SecurityScheme::Bearer)
+    }
+}
+
+// API key in header
+impl Endpoint for ApiEndpoint {
+    fn meta(&self) -> Meta {
+        Meta::new()
+            .security(SecurityScheme::ApiKey {
+                name: "X-API-Key",
+                location: ApiKeyLocation::Header,
+            })
+    }
+}
+
+// HTTP Basic authentication
+impl Endpoint for BasicAuthEndpoint {
+    fn meta(&self) -> Meta {
+        Meta::new()
+            .security(SecurityScheme::Basic)
+    }
+}
+```
+
+### Multiple Requirements
+
+Require multiple authentication methods (AND logic):
+
+```rust
+impl Endpoint for HighSecurityEndpoint {
+    fn meta(&self) -> Meta {
+        Meta::new()
+            .security(SecurityScheme::Bearer)
+            .security(SecurityScheme::ApiKey {
+                name: "X-API-Key",
+                location: ApiKeyLocation::Header,
+            })
+    }
+}
+```
+
+### Complete Example
+
+```rust
+use uncovr::prelude::*;
+use uncovr::axum_middleware::from_fn;
+
+#[derive(Clone)]
+pub struct AuthUser {
+    pub user_id: i64,
+    pub email: String,
+}
+
+async fn auth_middleware(
+    headers: HeaderMap,
+    mut request: Request,
+    next: Next,
+) -> Response {
+    let token = match headers
+        .get("authorization")
+        .and_then(|h| h.to_str().ok())
+        .and_then(|h| h.strip_prefix("Bearer "))
+    {
+        Some(t) => t,
+        None => {
+            return (StatusCode::UNAUTHORIZED, "Missing or invalid token")
+                .into_response();
+        }
+    };
+
+    let user = match validate_token(token) {
+        Ok(u) => u,
+        Err(_) => {
+            return (StatusCode::UNAUTHORIZED, "Invalid token").into_response();
+        }
+    };
+
+    request.extensions_mut().insert(user);
+    next.run(request).await
+}
+
+#[derive(Clone)]
+pub struct GetProfile;
+
+impl Endpoint for GetProfile {
+    fn route(&self) -> Route {
+        Route::get("/profile")
+    }
+
+    fn meta(&self) -> Meta {
+        Meta::new()
+            .summary("Get user profile")
+            .auth_required()
+    }
+}
+
+#[async_trait]
+impl Handler for GetProfile {
+    type Request = ();
+    type Response = Json<serde_json::Value>;
+
+    async fn handle(&self, ctx: Context<Self::Request>) -> Self::Response {
+        let user = ctx.extensions.get::<AuthUser>().unwrap();
+        Json(json!({
+            "user_id": user.user_id,
+            "email": user.email
+        }))
+    }
+}
+
+#[tokio::main]
+async fn main() {
+    let protected = Server::new()
+        .register(GetProfile)
+        .layer(from_fn(auth_middleware))
+        .build()
+        .into_router();
+
+    let public = Server::new()
+        .register(LoginEndpoint)
+        .build()
+        .into_router();
+
+    Server::new()
+        .with_config(App::new("API", "1.0.0"))
+        .nest("/api", protected)
+        .nest("/auth", public)
+        .serve()
+        .await
+        .unwrap();
+}
+```
+
+The security metadata generates proper OpenAPI 3.0 specifications and displays authentication requirements in the interactive documentation.

@@ -202,10 +202,54 @@ pub type ResponseCallback = Box<
     dyn FnOnce(aide::transform::TransformOperation) -> aide::transform::TransformOperation + Send,
 >;
 
+/// Security scheme types for OpenAPI 3.0 specification.
+///
+/// Defines authentication and authorization schemes that can be applied to endpoints.
+/// These are automatically converted to OpenAPI security scheme definitions.
+#[derive(Debug, Clone, PartialEq)]
+pub enum SecurityScheme {
+    /// Bearer token authentication (typically JWT)
+    ///
+    /// Expects: `Authorization: Bearer <token>`
+    Bearer,
+
+    /// API Key authentication
+    ///
+    /// Can be passed in header, query parameter, or cookie
+    ApiKey {
+        /// Parameter name (e.g., "X-API-Key", "api_key")
+        name: &'static str,
+        /// Where the API key is located
+        location: ApiKeyLocation,
+    },
+
+    /// HTTP Basic authentication
+    ///
+    /// Expects: `Authorization: Basic <base64(username:password)>`
+    Basic,
+
+    /// OAuth2 authentication with specific flows
+    OAuth2 {
+        /// OAuth2 flow types (e.g., "authorizationCode", "implicit", "clientCredentials")
+        flows: Vec<&'static str>,
+    },
+}
+
+/// Location of API key for ApiKey security scheme.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ApiKeyLocation {
+    /// API key in HTTP header
+    Header,
+    /// API key in query parameter
+    Query,
+    /// API key in cookie
+    Cookie,
+}
+
 /// Endpoint metadata for API documentation and OpenAPI specification generation.
 ///
 /// Defines human-readable information about endpoints including summaries, descriptions,
-/// tags, and deprecation status.
+/// tags, deprecation status, and security requirements.
 #[derive(Default)]
 pub struct Meta {
     pub summary: Option<&'static str>,
@@ -213,6 +257,8 @@ pub struct Meta {
     pub tags: Vec<&'static str>,
     pub deprecated: bool,
     pub response_config: Option<ResponseCallback>,
+    /// Security schemes required for this endpoint
+    pub security: Vec<SecurityScheme>,
 }
 
 impl Meta {
@@ -258,6 +304,74 @@ impl Meta {
             + 'static,
     {
         self.response_config = Some(Box::new(callback));
+        self
+    }
+
+    /// Marks this endpoint as requiring authentication.
+    ///
+    /// This is a convenience method that adds Bearer token authentication.
+    /// For more control, use `security()` to specify the exact scheme.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use uncovr::server::endpoint::Meta;
+    /// Meta::new()
+    ///     .summary("Get user profile")
+    ///     .auth_required()
+    /// # ;
+    /// ```
+    pub fn auth_required(mut self) -> Self {
+        self.security.push(SecurityScheme::Bearer);
+        self
+    }
+
+    /// Adds a security scheme requirement to this endpoint.
+    ///
+    /// Multiple security schemes can be added. If multiple schemes are present,
+    /// the client must satisfy ALL of them (AND logic).
+    ///
+    /// # Examples
+    ///
+    /// Bearer token:
+    /// ```no_run
+    /// # use uncovr::server::endpoint::{Meta, SecurityScheme};
+    /// Meta::new()
+    ///     .security(SecurityScheme::Bearer)
+    /// # ;
+    /// ```
+    ///
+    /// API Key in header:
+    /// ```no_run
+    /// # use uncovr::server::endpoint::{Meta, SecurityScheme, ApiKeyLocation};
+    /// Meta::new()
+    ///     .security(SecurityScheme::ApiKey {
+    ///         name: "X-API-Key",
+    ///         location: ApiKeyLocation::Header,
+    ///     })
+    /// # ;
+    /// ```
+    pub fn security(mut self, scheme: SecurityScheme) -> Self {
+        self.security.push(scheme);
+        self
+    }
+
+    /// Marks this endpoint as publicly accessible (no authentication required).
+    ///
+    /// This explicitly clears any security requirements and documents that
+    /// the endpoint is public. Useful for documenting intent.
+    ///
+    /// # Example
+    ///
+    /// ```no_run
+    /// # use uncovr::server::endpoint::Meta;
+    /// Meta::new()
+    ///     .summary("Public health check")
+    ///     .public()
+    /// # ;
+    /// ```
+    pub fn public(mut self) -> Self {
+        self.security.clear();
         self
     }
 }

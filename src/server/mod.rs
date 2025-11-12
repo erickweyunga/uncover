@@ -50,6 +50,9 @@ pub mod params;
 mod router;
 
 pub use builder::{Server, ServerBuilder};
-pub use endpoint::{Endpoint, HttpMethod, Meta, PathParam, QueryParam, ResponseCallback, Route};
+pub use endpoint::{
+    ApiKeyLocation, Endpoint, HttpMethod, Meta, PathParam, QueryParam, ResponseCallback, Route,
+    SecurityScheme,
+};
 pub use params::{Path, Query};
 pub use router::RouterExt;

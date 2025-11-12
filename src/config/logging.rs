@@ -1,6 +1,4 @@
 //! Logging configuration types
-//!
-//! Simple logging configuration that can be passed to the logging initialization.
 
 use serde::{Deserialize, Serialize};
 
@@ -41,7 +39,7 @@ pub enum LogFormat {
 
 /// Logging configuration
 ///
-/// Simple configuration for application logging.
+/// Configuration for application logging.
 ///
 /// # Example
 ///

@@ -8,7 +8,9 @@ use aide::axum::{
     routing::{delete_with, get_with, patch_with, post_with, put_with},
 };
 use aide::openapi::{
-    Parameter, ParameterData, ParameterSchemaOrContent, QueryStyle, ReferenceOr, SchemaObject,
+    ApiKeyLocation as OpenApiKeyLocation, Parameter, ParameterData, ParameterSchemaOrContent,
+    QueryStyle, ReferenceOr, SchemaObject, SecurityRequirement,
+    SecurityScheme as OpenApiSecurityScheme,
 };
 use axum::{Extension, async_trait, body::Body};
 use axum::{
@@ -24,7 +26,7 @@ use crate::api::api::Handler;
 use crate::config::App;
 use crate::context::Context;
 use crate::openapi::{OpenApiConfig, serve_docs, serve_scalar_ui};
-use crate::server::endpoint::Endpoint as EndpointTrait;
+use crate::server::endpoint::{ApiKeyLocation, Endpoint as EndpointTrait, SecurityScheme};
 use crate::server::params::{Path, Query};
 
 /// Custom extractor for HTTP Extensions.
@@ -266,6 +268,69 @@ fn param_info_to_query_param(param: &ParamInfo) -> ReferenceOr<Parameter> {
     })
 }
 
+/// Convert uncovr SecurityScheme to OpenAPI security requirement name.
+///
+/// Maps security schemes to their standard OpenAPI security scheme names.
+/// These names are used to reference security schemes defined in the OpenAPI spec.
+fn security_scheme_name(scheme: &SecurityScheme) -> &'static str {
+    match scheme {
+        SecurityScheme::Bearer => "bearerAuth",
+        SecurityScheme::Basic => "basicAuth",
+        SecurityScheme::ApiKey { .. } => "apiKeyAuth",
+        SecurityScheme::OAuth2 { .. } => "oauth2Auth",
+    }
+}
+
+/// Convert uncovr SecurityScheme to OpenAPI SecurityScheme.
+///
+/// Transforms uncovr's security scheme definitions into OpenAPI 3.0 security scheme
+/// specifications for automatic documentation generation.
+fn to_openapi_security_scheme(scheme: &SecurityScheme) -> OpenApiSecurityScheme {
+    match scheme {
+        SecurityScheme::Bearer => OpenApiSecurityScheme::Http {
+            scheme: "bearer".to_string(),
+            bearer_format: Some("JWT".to_string()),
+            description: Some("Bearer token authentication".to_string()),
+            extensions: Default::default(),
+        },
+        SecurityScheme::Basic => OpenApiSecurityScheme::Http {
+            scheme: "basic".to_string(),
+            bearer_format: None,
+            description: Some("HTTP Basic authentication".to_string()),
+            extensions: Default::default(),
+        },
+        SecurityScheme::ApiKey { name, location } => {
+            let api_location = match location {
+                ApiKeyLocation::Header => OpenApiKeyLocation::Header,
+                ApiKeyLocation::Query => OpenApiKeyLocation::Query,
+                ApiKeyLocation::Cookie => OpenApiKeyLocation::Cookie,
+            };
+            OpenApiSecurityScheme::ApiKey {
+                location: api_location,
+                name: name.to_string(),
+                description: Some(format!(
+                    "API key in {}",
+                    match location {
+                        ApiKeyLocation::Header => "header",
+                        ApiKeyLocation::Query => "query parameter",
+                        ApiKeyLocation::Cookie => "cookie",
+                    }
+                )),
+                extensions: Default::default(),
+            }
+        }
+        SecurityScheme::OAuth2 { .. } => {
+            // For OAuth2, we create a basic placeholder
+            // Users can customize this via response_config if needed
+            OpenApiSecurityScheme::OAuth2 {
+                flows: Default::default(),
+                description: Some("OAuth2 authentication".to_string()),
+                extensions: Default::default(),
+            }
+        }
+    }
+}
+
 impl ServerBuilder {
     /// Configure the server with an App
     pub fn with_config(mut self, config: App) -> Self {
@@ -448,6 +513,7 @@ impl ServerBuilder {
         let description = meta.description;
         let tags = meta.tags.clone();
         let response_config = meta.response_config;
+        let security_schemes = meta.security.clone();
 
         let endpoint = Arc::new(endpoint);
 
@@ -494,6 +560,16 @@ impl ServerBuilder {
 
                         for tag in &tags {
                             op = op.tag(tag);
+                        }
+
+                        // Add security requirements
+                        if !security_schemes.is_empty() {
+                            for scheme in &security_schemes {
+                                let mut security_req = SecurityRequirement::new();
+                                security_req
+                                    .insert(security_scheme_name(scheme).to_string(), vec![]);
+                                op.inner_mut().security.push(security_req);
+                            }
                         }
 
                         // Apply response config callback if provided
@@ -549,6 +625,16 @@ impl ServerBuilder {
                             op = op.tag(tag);
                         }
 
+                        // Add security requirements
+                        if !security_schemes.is_empty() {
+                            for scheme in &security_schemes {
+                                let mut security_req = SecurityRequirement::new();
+                                security_req
+                                    .insert(security_scheme_name(scheme).to_string(), vec![]);
+                                op.inner_mut().security.push(security_req);
+                            }
+                        }
+
                         // Apply response config callback if provided
                         if let Some(callback) = response_config {
                             op = callback(op);
@@ -600,6 +686,16 @@ impl ServerBuilder {
 
                         for tag in &tags {
                             op = op.tag(tag);
+                        }
+
+                        // Add security requirements
+                        if !security_schemes.is_empty() {
+                            for scheme in &security_schemes {
+                                let mut security_req = SecurityRequirement::new();
+                                security_req
+                                    .insert(security_scheme_name(scheme).to_string(), vec![]);
+                                op.inner_mut().security.push(security_req);
+                            }
                         }
 
                         // Apply response config callback if provided
@@ -655,6 +751,16 @@ impl ServerBuilder {
                             op = op.tag(tag);
                         }
 
+                        // Add security requirements
+                        if !security_schemes.is_empty() {
+                            for scheme in &security_schemes {
+                                let mut security_req = SecurityRequirement::new();
+                                security_req
+                                    .insert(security_scheme_name(scheme).to_string(), vec![]);
+                                op.inner_mut().security.push(security_req);
+                            }
+                        }
+
                         // Apply response config callback if provided
                         if let Some(callback) = response_config {
                             op = callback(op);
@@ -708,6 +814,16 @@ impl ServerBuilder {
                             op = op.tag(tag);
                         }
 
+                        // Add security requirements
+                        if !security_schemes.is_empty() {
+                            for scheme in &security_schemes {
+                                let mut security_req = SecurityRequirement::new();
+                                security_req
+                                    .insert(security_scheme_name(scheme).to_string(), vec![]);
+                                op.inner_mut().security.push(security_req);
+                            }
+                        }
+
                         // Apply response config callback if provided
                         if let Some(callback) = response_config {
                             op = callback(op);
@@ -758,6 +874,16 @@ impl ServerBuilder {
 
                         for tag in &tags {
                             op = op.tag(tag);
+                        }
+
+                        // Add security requirements
+                        if !security_schemes.is_empty() {
+                            for scheme in &security_schemes {
+                                let mut security_req = SecurityRequirement::new();
+                                security_req
+                                    .insert(security_scheme_name(scheme).to_string(), vec![]);
+                                op.inner_mut().security.push(security_req);
+                            }
                         }
 
                         // Apply response config callback if provided
@@ -879,6 +1005,36 @@ impl ServerBuilder {
 
             // Generate and set up the OpenAPI documentation
             let mut api = api.clone();
+
+            // Add global security scheme definitions
+            // These define the authentication methods available in the API
+            api.components
+                .get_or_insert_with(Default::default)
+                .security_schemes
+                .insert(
+                    "bearerAuth".to_string(),
+                    ReferenceOr::Item(to_openapi_security_scheme(&SecurityScheme::Bearer)),
+                );
+
+            api.components
+                .get_or_insert_with(Default::default)
+                .security_schemes
+                .insert(
+                    "basicAuth".to_string(),
+                    ReferenceOr::Item(to_openapi_security_scheme(&SecurityScheme::Basic)),
+                );
+
+            api.components
+                .get_or_insert_with(Default::default)
+                .security_schemes
+                .insert(
+                    "apiKeyAuth".to_string(),
+                    ReferenceOr::Item(to_openapi_security_scheme(&SecurityScheme::ApiKey {
+                        name: "X-API-Key",
+                        location: ApiKeyLocation::Header,
+                    })),
+                );
+
             let router = self.router.finish_api(&mut api);
 
             self.router = docs_router.merge(router).layer(Extension(api));
