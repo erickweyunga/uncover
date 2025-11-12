@@ -4,7 +4,7 @@
 
 // Core Uncovr types
 pub use crate::api::api::Handler;
-pub use crate::api::response::{Error, Response};
+pub use crate::api::response::{Error, HandlerResult, JsonResponse, Response};
 pub use crate::config::{App, LogFormat, LogLevel, Logging};
 pub use crate::context::Context;
 pub use crate::server::params::{Path, Query};

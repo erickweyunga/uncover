@@ -343,6 +343,162 @@ impl aide::OperationOutput for Error {
     }
 }
 
+/// Validated JSON wrapper for handler responses.
+///
+/// This is a newtype wrapper around `Json<T>` that implements `aide::OperationOutput`
+/// and is designed to work with `Result<JsonResponse<T>, Error>`.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// use uncovr::prelude::*;
+///
+/// #[async_trait]
+/// impl Handler for CreateUser {
+///     type Request = CreateUserRequest;
+///     type Response = Result<JsonResponse<User>, Error>;
+///
+///     async fn handle(&self, ctx: Context<Self::Request>) -> Self::Response {
+///         ctx.req.validate()?; // Validation errors auto-convert to 422
+///
+///         let user = create_user(ctx.req).await?;
+///         Ok(JsonResponse(user))
+///     }
+/// }
+/// ```
+#[derive(Debug, Clone)]
+pub struct JsonResponse<T>(pub T);
+
+impl<T> From<T> for JsonResponse<T> {
+    fn from(value: T) -> Self {
+        Self(value)
+    }
+}
+
+impl<T> IntoResponse for JsonResponse<T>
+where
+    T: Serialize,
+{
+    fn into_response(self) -> AxumResponse {
+        axum::Json(self.0).into_response()
+    }
+}
+
+impl<T> aide::OperationOutput for JsonResponse<T>
+where
+    T: schemars::JsonSchema + Serialize,
+{
+    type Inner = T;
+
+    fn operation_response(
+        _ctx: &mut aide::r#gen::GenContext,
+        _operation: &mut aide::openapi::Operation,
+    ) -> Option<aide::openapi::Response> {
+        None
+    }
+
+    fn inferred_responses(
+        _ctx: &mut aide::r#gen::GenContext,
+        _operation: &mut aide::openapi::Operation,
+    ) -> Vec<(Option<u16>, aide::openapi::Response)> {
+        Vec::new()
+    }
+}
+
+/// Result type for handlers with automatic error conversion and validation support.
+///
+/// This type wraps `Result<JsonResponse<T>, Error>` to provide:
+/// - Automatic OpenAPI documentation integration
+/// - Seamless error conversion from validation and common error types
+/// - JSON response serialization
+///
+/// Use with the `handle!` macro for ergonomic error handling.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// use uncovr::prelude::*;
+/// use uncovr::handle;
+///
+/// #[async_trait]
+/// impl Handler for CreateUser {
+///     type Request = CreateUserRequest;
+///     type Response = HandlerResult<User>;
+///
+///     async fn handle(&self, ctx: Context<Self::Request>) -> Self::Response {
+///         handle! {
+///             ctx.req.validate()?;
+///             let user = create_user(ctx.req).await?;
+///             Ok(user)
+///         }
+///     }
+/// }
+/// ```
+pub struct HandlerResult<T>(Result<JsonResponse<T>, Error>);
+
+// Allow using ? operator by implementing From for common error types
+impl<T> From<Error> for HandlerResult<T> {
+    fn from(error: Error) -> Self {
+        Self(Err(error))
+    }
+}
+
+impl<T> From<validator::ValidationErrors> for HandlerResult<T> {
+    fn from(errors: validator::ValidationErrors) -> Self {
+        Self(Err(Error::from(errors)))
+    }
+}
+
+// Make Ok(value.into()) work
+impl<T> From<Result<JsonResponse<T>, Error>> for HandlerResult<T> {
+    fn from(result: Result<JsonResponse<T>, Error>) -> Self {
+        Self(result)
+    }
+}
+
+impl<T> IntoResponse for HandlerResult<T>
+where
+    T: Serialize,
+{
+    fn into_response(self) -> AxumResponse {
+        match self.0 {
+            Ok(json_response) => json_response.into_response(),
+            Err(err) => err.into_response(),
+        }
+    }
+}
+
+impl<T> aide::OperationOutput for HandlerResult<T>
+where
+    T: schemars::JsonSchema + Serialize,
+{
+    type Inner = T;
+
+    fn operation_response(
+        _ctx: &mut aide::r#gen::GenContext,
+        _operation: &mut aide::openapi::Operation,
+    ) -> Option<aide::openapi::Response> {
+        None
+    }
+
+    fn inferred_responses(
+        _ctx: &mut aide::r#gen::GenContext,
+        _operation: &mut aide::openapi::Operation,
+    ) -> Vec<(Option<u16>, aide::openapi::Response)> {
+        Vec::new()
+    }
+}
+
+impl<T> HandlerResult<T> {
+    /// Helper to convert from Result<T, E> where E implements Into<Error>
+    pub fn from_result<E>(result: Result<T, E>) -> Self
+    where
+        E: Into<Error>,
+    {
+        Self(result.map(JsonResponse).map_err(|e| e.into()))
+    }
+}
+
 // Automatic error conversions for uncovr handlers
 
 impl From<crate::server::params::ParamError> for Error {

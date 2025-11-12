@@ -274,6 +274,48 @@ pub mod logging;
 pub mod openapi;
 pub mod server;
 
+/// Helper macro for working with HandlerResult and validation.
+///
+/// This macro simplifies the pattern of validating requests and returning HandlerResult.
+///
+/// # Example
+///
+/// ```rust,ignore
+/// use uncovr::prelude::*;
+/// use uncovr::handle;
+///
+/// #[async_trait]
+/// impl Handler for CreateUser {
+///     type Request = CreateUserRequest;
+///     type Response = HandlerResult<UserResponse>;
+///
+///     async fn handle(&self, ctx: Context<Self::Request>) -> Self::Response {
+///         handle! {
+///             ctx.req.validate()?;
+///
+///             let user = UserResponse {
+///                 id: 1,
+///                 name: ctx.req.name,
+///                 email: ctx.req.email,
+///             };
+///
+///             user
+///         }
+///     }
+/// }
+/// ```
+#[macro_export]
+macro_rules! handle {
+    ($($body:tt)*) => {
+        {
+            let result: Result<_, $crate::api::response::Error> = (|| {
+                $($body)*
+            })();
+            $crate::api::response::HandlerResult::from_result(result)
+        }
+    };
+}
+
 /// Testing utilities for integration tests
 #[cfg(feature = "testing")]
 pub mod testing;
